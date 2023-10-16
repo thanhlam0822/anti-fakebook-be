@@ -10,7 +10,7 @@ public class AntiFakebookApplication {
 
 	public static void main(String[] args) {
 
-
+		System.err.println("test");
 		SpringApplication.run(AntiFakebookApplication.class, args);
 	}
 
