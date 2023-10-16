@@ -38,8 +38,9 @@ public class UserEntity {
     private String session;
     @Column
     private String uuid;
+    @Enumerated(EnumType.STRING)
     @Column
-    private String role;
+    private Role role;
     @Column
     private Date createdDate;
     @Column
@@ -50,7 +51,7 @@ public class UserEntity {
     public UserEntity(String email, String password) {
         this.email = email;
         this.password = password;
-        this.role = "ROLE_USER";
+        this.role = Role.ROLE_GUEST;
         this.uuid = UUID.randomUUID().toString();
         this.createdDate = new Date();
         this.activeStatus = ActiveStatusCode.INACTIVE.getCode();

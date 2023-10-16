@@ -1,7 +1,6 @@
 package com.project.antifakebook.util;
 
 
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,7 +12,8 @@ public class ValidateRegisterAccountRequestUtils {
         Matcher matcher = pattern.matcher(email);
         return matcher.matches();
     }
-    public static boolean validatePassword(String password) {
-        return password.length() >= 6 && password.length() <=8;
+
+    public static boolean validatePassword(String password, String email) {
+        return password.length() >= 6 && password.length() <= 8 && !password.equals(email);
     }
 }

@@ -32,7 +32,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthFilter authFilter) throws Exception {
         return http.csrf().disable()
                 .authorizeHttpRequests()
-                .antMatchers("/api/mock-user","/api/login","/api/sign-up").permitAll()
+                .antMatchers("/api/mock-user","/api/login","/api/sign-up","/api/get-verify-code").permitAll()
                 .and()
                 .authorizeHttpRequests().antMatchers("/api/user").hasRole("USER")
                 .and()
