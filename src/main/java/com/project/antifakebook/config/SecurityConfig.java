@@ -19,10 +19,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.util.Arrays;
+import java.util.List;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
+    private static final String[] pathArray = new String[]
+            {"/api/mock-user","/api/login","/api/sign-up","/api/get-verify-code","/api/registration-confirm"};
+
+
     @Bean
     public UserDetailsService userDetailsService() {
         return new UserService();
@@ -32,7 +39,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthFilter authFilter) throws Exception {
         return http.csrf().disable()
                 .authorizeHttpRequests()
-                .antMatchers("/api/mock-user","/api/login","/api/sign-up","/api/get-verify-code").permitAll()
+                .antMatchers(pathArray).permitAll()
                 .and()
                 .authorizeHttpRequests().antMatchers("/api/user").hasRole("USER")
                 .and()

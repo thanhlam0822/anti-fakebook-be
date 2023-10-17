@@ -15,7 +15,9 @@ import java.util.Locale;
         private final Locale locale;
         private final Long userId;
 
-        public OnRegistrationCompleteEvent(final Long userId, final Locale locale, final String appUrl) {
+
+
+    public OnRegistrationCompleteEvent(final Long userId, final Locale locale, final String appUrl) {
             super(userId);
             this.userId = userId;
             this.locale = locale;

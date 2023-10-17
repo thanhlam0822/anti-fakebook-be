@@ -30,6 +30,7 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -114,12 +115,21 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    private String getAppUrl(HttpServletRequest request) {
+    public String getAppUrl(HttpServletRequest request) {
         return "http://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
     }
     public UserEntity createVerificationTokenForUser(Long userId, String token) {
         VerificationTokenEntity myToken = new VerificationTokenEntity(token, userId);
         verifyTokenRepository.save(myToken);
+        return userRepository.findById(userId).orElse(null);
+    }
+    public UserEntity updateVerificationTokenForUser(Long userId) {
+        VerificationTokenEntity token = verifyTokenRepository.getVerifyTokenByUserId(userId);
+        String newToken = UUID.randomUUID().toString();
+        token.setGetToken(false);
+        token.setToken(newToken);
+        token.setExpiryDate(token.calculateExpiryDate());
+        verifyTokenRepository.save(token);
         return userRepository.findById(userId).orElse(null);
     }
 }

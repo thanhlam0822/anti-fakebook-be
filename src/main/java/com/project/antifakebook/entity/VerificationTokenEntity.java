@@ -27,7 +27,7 @@ public class VerificationTokenEntity {
     private Long userId;
 
     private Date expiryDate;
-    private Date timeGetToken;
+    private boolean isGetToken;
 
     public VerificationTokenEntity() {
         super();
@@ -36,29 +36,29 @@ public class VerificationTokenEntity {
     public VerificationTokenEntity(final String token) {
         super();
         this.token = token;
-        this.expiryDate = calculateExpiryDate(EXPIRATION);
+        this.expiryDate = calculateExpiryDate();
     }
 
     public VerificationTokenEntity(final String token, final Long userId) {
         super();
         this.token = token;
         this.userId = userId;
-        this.expiryDate = calculateExpiryDate(EXPIRATION);
-        this.timeGetToken = new Date();
+        this.expiryDate = calculateExpiryDate();
+        this.isGetToken = false;
     }
 
 
 
-    private Date calculateExpiryDate(final int expiryTimeInMinutes) {
+    public Date calculateExpiryDate() {
         final Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(new Date().getTime());
-        cal.add(Calendar.MINUTE, expiryTimeInMinutes);
+        cal.add(Calendar.MINUTE, VerificationTokenEntity.EXPIRATION);
         return new Date(cal.getTime().getTime());
     }
 
     public void updateToken(final String token) {
         this.token = token;
-        this.expiryDate = calculateExpiryDate(EXPIRATION);
+        this.expiryDate = calculateExpiryDate();
     }
 
 
