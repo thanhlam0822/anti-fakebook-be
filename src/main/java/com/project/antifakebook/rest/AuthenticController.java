@@ -13,10 +13,10 @@ import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/api")
-public class UserController {
+public class AuthenticController {
     private final UserService userService;
 
-    public UserController(UserService userService) {
+    public AuthenticController(UserService userService) {
         this.userService = userService;
     }
 

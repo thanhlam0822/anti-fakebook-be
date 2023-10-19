@@ -19,15 +19,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import java.util.Arrays;
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
     private static final String[] pathArray = new String[]
-            {"/api/mock-user","/api/login","/api/sign-up","/api/get-verify-code","/api/registration-confirm"};
+            {"/api/mock-user", "/api/login", "/api/sign-up", "/api/get-verify-code", "/api/registration-confirm"};
 
 
     @Bean
@@ -40,10 +38,7 @@ public class SecurityConfig {
         return http.csrf().disable()
                 .authorizeHttpRequests()
                 .antMatchers(pathArray).permitAll()
-                .and()
-                .authorizeHttpRequests().antMatchers("/api/user").hasRole("USER")
-                .and()
-                .authorizeHttpRequests().antMatchers("/api/admin").hasRole("ADMIN")
+                .anyRequest().authenticated()
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
