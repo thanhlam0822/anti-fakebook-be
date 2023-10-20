@@ -4,9 +4,7 @@ package com.project.antifakebook.service;
 import com.project.antifakebook.config.CustomUserDetails;
 import com.project.antifakebook.dto.ResponseCase;
 import com.project.antifakebook.dto.ServerResponseDto;
-import com.project.antifakebook.dto.account.AccountLoginRequestDto;
-import com.project.antifakebook.dto.account.AccountLoginResponseDto;
-import com.project.antifakebook.dto.account.RegisterAccountRequestDto;
+import com.project.antifakebook.dto.account.*;
 import com.project.antifakebook.entity.UserEntity;
 import com.project.antifakebook.entity.VerificationTokenEntity;
 import com.project.antifakebook.events.OnRegistrationCompleteEvent;
@@ -114,6 +112,18 @@ public class UserService implements UserDetailsService {
             return new ServerResponseDto(ResponseCase.USER_IS_NOT_VALIDATED);
         }
     }
+    public ServerResponseDto changeInfoAfterSignUp(Authentication authentication,ChangeInfoAfterSignUpRequestDto requestDto) {
+        String userEmail = authentication.getName();
+        ChangeInfoAfterSignUpResponseDto responseDto = null;
+        UserEntity userEntity = userRepository.findByEmail(userEmail).orElse(null);
+        if(userEntity != null) {
+            userEntity.setName(requestDto.getUsername());
+            userEntity.setAvatarLink(requestDto.getAvatar());
+            userRepository.save(userEntity);
+            responseDto = new ChangeInfoAfterSignUpResponseDto(userEntity);
+        }
+        return new ServerResponseDto(ResponseCase.OK,responseDto);
+    }
 
     public String getAppUrl(HttpServletRequest request) {
         return "http://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
@@ -132,5 +142,6 @@ public class UserService implements UserDetailsService {
         verifyTokenRepository.save(token);
         return userRepository.findById(userId).orElse(null);
     }
+
 }
 
