@@ -10,6 +10,7 @@ import com.project.antifakebook.entity.VerificationTokenEntity;
 import com.project.antifakebook.events.OnRegistrationCompleteEvent;
 import com.project.antifakebook.repository.UserRepository;
 import com.project.antifakebook.repository.VerifyTokenRepository;
+import com.project.antifakebook.util.FileUploadUtil;
 import com.project.antifakebook.util.ValidateRegisterAccountRequestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -26,8 +27,13 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import javax.servlet.http.HttpServletRequest;
-import java.util.Optional;
+import java.io.IOException;
+
+import java.util.Objects;
+
 import java.util.UUID;
 
 @Service
@@ -57,9 +63,15 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Optional<UserEntity> userDetail = userRepository.findByEmail(email);
-        return userDetail.map(CustomUserDetails::new)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found " + email));
+        UserEntity userDetail = userRepository.findUserByEmailCustom(email);
+        if (userDetail == null) {
+            throw new UsernameNotFoundException("User not found " + email);
+        }
+        CustomUserDetails customUserDetails = new CustomUserDetails(userDetail);
+        customUserDetails.setUserId(userDetail.getId());
+        customUserDetails.setCoins(userDetail.getCoins());
+        return customUserDetails;
+
     }
 
     public UserEntity findByEmail(String email) {
@@ -112,19 +124,31 @@ public class UserService implements UserDetailsService {
             return new ServerResponseDto(ResponseCase.USER_IS_NOT_VALIDATED);
         }
     }
-    public ServerResponseDto changeInfoAfterSignUp(Authentication authentication,ChangeInfoAfterSignUpRequestDto requestDto) {
+    public ServerResponseDto changeInfoAfterSignUp
+            (Authentication authentication,String username,MultipartFile file) throws IOException {
+        ServerResponseDto serverResponseDto;
         String userEmail = authentication.getName();
-        ChangeInfoAfterSignUpResponseDto responseDto = null;
-        UserEntity userEntity = userRepository.findByEmail(userEmail).orElse(null);
-        if(userEntity != null) {
-            userEntity.setName(requestDto.getUsername());
-            userEntity.setAvatarLink(requestDto.getAvatar());
-            userRepository.save(userEntity);
-            responseDto = new ChangeInfoAfterSignUpResponseDto(userEntity);
-        }
-        return new ServerResponseDto(ResponseCase.OK,responseDto);
+        ChangeInfoAfterSignUpResponseDto responseDto ;
+            UserEntity userEntity = userRepository.findByEmail(userEmail).orElse(null);
+            boolean isValidUsername = ValidateRegisterAccountRequestUtils.isValidUsername(username);
+            if(isValidUsername) {
+                Objects.requireNonNull(userEntity).setName(username);
+                userEntity.setAvatarLink(uploadAvatarImageFile(userEntity.getId(), file));
+                userRepository.save(userEntity);
+                responseDto = new ChangeInfoAfterSignUpResponseDto(userEntity);
+                serverResponseDto = new ServerResponseDto(ResponseCase.OK,responseDto);
+            }
+            else {
+                serverResponseDto = new ServerResponseDto(ResponseCase.INVALID_USER_NAME);
+            }
+            return serverResponseDto;
     }
-
+    public String uploadAvatarImageFile(Long userId,MultipartFile multipartFile) throws IOException {
+        String fileName = "avatar_"+userId+".jpg";
+        String uploadDir = "src/main/resources/avatar/";
+        FileUploadUtil.saveFile(uploadDir, fileName, multipartFile);
+        return uploadDir + fileName;
+    }
     public String getAppUrl(HttpServletRequest request) {
         return "http://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
     }

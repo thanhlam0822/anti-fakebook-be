@@ -12,4 +12,5 @@ public interface ResponseCase {
     ResponseStatus NOT_ACCESS = new ResponseStatus(1009, "NOT ACCESS");
     ResponseStatus TOKEN_NULL = new ResponseStatus( "TOKEN NULL");
     ResponseStatus INVALID_TOKEN = new ResponseStatus(9998, "TOKEN IS INVALID");
+    ResponseStatus INVALID_USER_NAME = new ResponseStatus("INVALID USERNAME");
 }
