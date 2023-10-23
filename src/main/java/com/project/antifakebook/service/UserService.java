@@ -7,13 +7,15 @@ import com.project.antifakebook.dto.ServerResponseDto;
 import com.project.antifakebook.dto.account.*;
 import com.project.antifakebook.entity.UserEntity;
 import com.project.antifakebook.entity.VerificationTokenEntity;
-import com.project.antifakebook.events.OnRegistrationCompleteEvent;
+
+import com.project.antifakebook.enums.ActiveStatusCode;
 import com.project.antifakebook.repository.UserRepository;
 import com.project.antifakebook.repository.VerifyTokenRepository;
 import com.project.antifakebook.util.FileUploadUtil;
+import com.project.antifakebook.util.OTPUtils;
 import com.project.antifakebook.util.ValidateRegisterAccountRequestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
+
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -34,13 +36,13 @@ import java.io.IOException;
 
 import java.util.Objects;
 
-import java.util.UUID;
+
 
 @Service
 public class UserService implements UserDetailsService {
     @Autowired
     private UserRepository userRepository;
-    private ApplicationEventPublisher eventPublisher;
+
     private PasswordEncoder encoder;
     private AuthenticationManager authenticationManager;
     private JwtService jwtService;
@@ -50,13 +52,11 @@ public class UserService implements UserDetailsService {
     }
 
     @Autowired
-    public UserService(ApplicationEventPublisher eventPublisher,
-                       PasswordEncoder encoder, AuthenticationManager authenticationManage,
+    public UserService(PasswordEncoder encoder, AuthenticationManager authenticationManage,
                        JwtService jwtService,VerifyTokenRepository verifyTokenRepository) {
         this.encoder = encoder;
         this.authenticationManager = authenticationManage;
         this.jwtService = jwtService;
-        this.eventPublisher = eventPublisher;
         this.verifyTokenRepository = verifyTokenRepository;
     }
 
@@ -78,15 +78,13 @@ public class UserService implements UserDetailsService {
         return userRepository.findByEmail(email).orElse(null);
     }
 
-    public ServerResponseDto registerAccount(RegisterAccountRequestDto requestDto, HttpServletRequest servletRequest) {
+    public ServerResponseDto registerAccount(RegisterAccountRequestDto requestDto) {
         try {
 
             if (ValidateRegisterAccountRequestUtils.validateEmail(requestDto.getEmail())
                     && ValidateRegisterAccountRequestUtils.validatePassword(requestDto.getPassword(), requestDto.getEmail())) {
                 UserEntity user = new UserEntity(requestDto.getEmail(), encoder.encode(requestDto.getPassword()));
                 userRepository.save(user);
-                eventPublisher.publishEvent(new OnRegistrationCompleteEvent(user.getId(),
-                        servletRequest.getLocale(), getAppUrl(servletRequest)));
                 return new ServerResponseDto(ResponseCase.OK);
             } else if (!ValidateRegisterAccountRequestUtils.validateEmail(requestDto.getEmail()) &&
                     ValidateRegisterAccountRequestUtils.validatePassword(requestDto.getPassword(), requestDto.getEmail())) {
@@ -107,7 +105,7 @@ public class UserService implements UserDetailsService {
     public ServerResponseDto login(AccountLoginRequestDto requestDto) {
         Authentication authentication = authenticationManager.authenticate
                 (new UsernamePasswordAuthenticationToken(requestDto.getEmail(), requestDto.getPassword()));
-        if (authentication.isAuthenticated() && !(authentication instanceof AnonymousAuthenticationToken)) {
+        if (authentication.isAuthenticated() && !(authentication instanceof AnonymousAuthenticationToken) && isValidateUser(authentication.getName())) {
             String email = authentication.getName();
             String token = jwtService.generateToken(requestDto.getEmail());
             UserEntity userEntity = findByEmail(email);
@@ -159,13 +157,19 @@ public class UserService implements UserDetailsService {
     }
     public UserEntity updateVerificationTokenForUser(Long userId) {
         VerificationTokenEntity token = verifyTokenRepository.getVerifyTokenByUserId(userId);
-        String newToken = UUID.randomUUID().toString();
+        String newToken = OTPUtils.generateOTP();
         token.setGetToken(false);
         token.setToken(newToken);
         token.setExpiryDate(token.calculateExpiryDate());
         verifyTokenRepository.save(token);
         return userRepository.findById(userId).orElse(null);
     }
+    public boolean isValidateUser(String email) {
+        UserEntity user = findByEmail(email);
+        return user.getActiveStatus().equals(ActiveStatusCode.ACTIVE.getCode());
+
+    }
+
 
 }
 

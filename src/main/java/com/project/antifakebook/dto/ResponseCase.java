@@ -13,4 +13,7 @@ public interface ResponseCase {
     ResponseStatus TOKEN_NULL = new ResponseStatus( "TOKEN NULL");
     ResponseStatus INVALID_TOKEN = new ResponseStatus(9998, "TOKEN IS INVALID");
     ResponseStatus INVALID_USER_NAME = new ResponseStatus("INVALID USERNAME");
+    ResponseStatus NOT_ENOUGH_COINS = new ResponseStatus(9991,"NOT ENOUGH COINS");
+    ResponseStatus INVALID_PARAMETER = new ResponseStatus(1004,"INVALID PARAMETER");
+    ResponseStatus PARAMETER_IS_NOT_ENOUGH = new ResponseStatus(1002,"PARAMETER IS NOT ENOUGH");
 }

@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import com.project.antifakebook.entity.UserEntity;
 import com.project.antifakebook.service.UserService;
+import com.project.antifakebook.util.OTPUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.MessageSource;
@@ -35,7 +36,7 @@ public class RegistrationListener implements ApplicationListener<OnRegistrationC
 
     private void confirmRegistration(final OnRegistrationCompleteEvent event) {
         final Long userId = event.getUserId();
-        final String token = UUID.randomUUID().toString();
+        final String token = OTPUtils.generateOTP();
         UserEntity user = userService.createVerificationTokenForUser(userId, token);
         final SimpleMailMessage email = constructEmailMessage(event, user, token);
         mailSender.send(email);

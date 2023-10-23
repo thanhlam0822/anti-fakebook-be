@@ -25,6 +25,6 @@ public class PostController {
     public ServerResponseDto addPost(@RequestPart("files") MultipartFile[] files,
                                      @AuthenticationPrincipal CustomUserDetails currentUser,
                                      @RequestPart("entity")SavePostRequestDto requestDto) {
-        return postService.addPost(currentUser.getUserId(),currentUser.getCoins(), files,requestDto);
+        return postService.addPost(currentUser.getUserId(), files,requestDto);
     }
 }

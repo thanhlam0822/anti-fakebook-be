@@ -34,8 +34,8 @@ public class ResendTokenListener implements ApplicationListener<ResendTokenEvent
 
     private void resendToken(final ResendTokenEvent event) {
         final Long userId = event.getUserId();
-        VerificationTokenEntity token = verifyTokenRepository.getVerifyTokenByUserId(userId);
         UserEntity user = userService.updateVerificationTokenForUser(userId);
+        VerificationTokenEntity token = verifyTokenRepository.getVerifyTokenByUserId(userId);
         final SimpleMailMessage email = constructEmailMessageResendToken(event, user, token);
         mailSender.send(email);
     }

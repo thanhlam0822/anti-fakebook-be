@@ -25,7 +25,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity
 public class SecurityConfig {
     private static final String[] pathArray = new String[]
-            {"/api/mock-user", "/api/login", "/api/sign-up", "/api/get-verify-code", "/api/registration-confirm"};
+            {"/api/mock-user", "/api/login", "/api/sign-up", "/api/verify-token/get-verify-code", "/api/verify-token/check-verify-code"};
 
 
     @Bean

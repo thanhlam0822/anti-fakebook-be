@@ -6,11 +6,13 @@ import com.project.antifakebook.entity.UserEntity;
 import com.project.antifakebook.entity.VerificationTokenEntity;
 
 import com.project.antifakebook.enums.ActiveStatusCode;
+import com.project.antifakebook.events.OnRegistrationCompleteEvent;
 import com.project.antifakebook.events.ResendTokenEvent;
 import com.project.antifakebook.repository.UserRepository;
 import com.project.antifakebook.repository.VerifyTokenRepository;
 
 
+import com.project.antifakebook.util.ValidateRegisterAccountRequestUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +39,7 @@ public class VerifyTokenService {
         this.eventPublisher = eventPublisher;
     }
 
-    public ServerResponseDto getVerifyToken(String email, HttpServletRequest servletRequest) throws ParseException {
+    public ServerResponseDto getVerifyTokenService(String email, HttpServletRequest servletRequest) throws ParseException {
         UserEntity userEntity = userService.findByEmail(email);
         if (userEntity != null && userEntity.getActiveStatus().equals(ActiveStatusCode.ACTIVE.getCode())) {
             return new ServerResponseDto(ResponseCase.NOT_ACCESS);
@@ -45,26 +47,56 @@ public class VerifyTokenService {
             return new ServerResponseDto(ResponseCase.USER_IS_NOT_VALIDATED);
         } else {
             VerificationTokenEntity token = repository.getVerifyTokenByEmail(email);
-            if (token != null) {
-                if (isExpiredToken(token.getExpiryDate().toString())) {
-                    if (token.isGetToken()) {
-                        return new ServerResponseDto(ResponseCase.ACTION_DONE_BEFORE);
-                    } else {
-                        token.setGetToken(true);
-                        repository.save(token);
-                        return new ServerResponseDto(ResponseCase.OK, token.getToken());
-                    }
-                } else {
-                    eventPublisher.publishEvent(new ResendTokenEvent(userEntity.getId(),
-                            servletRequest.getLocale(), userService.getAppUrl(servletRequest)));
-                    VerificationTokenEntity newToken = repository.getVerifyTokenByUserId(userEntity.getId());
-                    return new ServerResponseDto(ResponseCase.OK, newToken.getToken());
-                }
-            } else {
-                return new ServerResponseDto(ResponseCase.TOKEN_NULL);
-            }
+            return getVerifyToken(token, userEntity.getId(), servletRequest);
         }
 
+    }
+
+    public ServerResponseDto getVerifyToken(VerificationTokenEntity token, Long userId, HttpServletRequest servletRequest) throws ParseException {
+        if (token != null) {
+            if (isExpiredToken(token.getExpiryDate().toString())) {
+                if (token.isGetToken()) {
+                    return new ServerResponseDto(ResponseCase.ACTION_DONE_BEFORE);
+                } else {
+                    token.setGetToken(true);
+                    repository.save(token);
+                    return new ServerResponseDto(ResponseCase.OK, token.getToken());
+                }
+            } else {
+                eventPublisher.publishEvent(new ResendTokenEvent(userId,
+                        servletRequest.getLocale(), userService.getAppUrl(servletRequest)));
+                VerificationTokenEntity newToken = repository.getVerifyTokenByUserId(userId);
+                return new ServerResponseDto(ResponseCase.OK, newToken.getToken());
+            }
+        } else {
+            eventPublisher.publishEvent(new OnRegistrationCompleteEvent(userId,
+                    servletRequest.getLocale(), userService.getAppUrl(servletRequest)));
+            VerificationTokenEntity tokenEntity = repository.getVerifyTokenByUserId(userId);
+            tokenEntity.setGetToken(true);
+            repository.save(tokenEntity);
+            return new ServerResponseDto(ResponseCase.OK, tokenEntity.getToken());
+        }
+    }
+
+    public ServerResponseDto checkVerifyCode(String token, String email) throws ParseException {
+        VerificationTokenEntity tokenEntity = repository.getVerifyTokenByEmail(email);
+        UserEntity userEntity = userRepository.findUserByTokenAndEmail(token, email);
+        if (userEntity != null) {
+            return activeUser(tokenEntity, userEntity);
+        } else {
+            return new ServerResponseDto(ResponseCase.USER_IS_NOT_VALIDATED);
+        }
+    }
+
+    public ServerResponseDto activeUser(VerificationTokenEntity tokenEntity,UserEntity userEntity) throws ParseException {
+        if (tokenEntity != null && isExpiredToken(tokenEntity.getExpiryDate().toString())) {
+            userEntity.setActiveStatus(ActiveStatusCode.ACTIVE.getCode());
+            userRepository.save(userEntity);
+            repository.deleteById(tokenEntity.getId());
+            return new ServerResponseDto(ResponseCase.OK);
+        } else {
+            return new ServerResponseDto(ResponseCase.INVALID_TOKEN);
+        }
     }
 
     public boolean isExpiredToken(String dateExpiredString) throws ParseException {
@@ -75,16 +107,4 @@ public class VerifyTokenService {
         Date dateExpired = simpleDateFormat.parse(dateExpiredString);
         return currentDate.before(dateExpired);
     }
-
-    public ServerResponseDto confirmRegistration(String token) {
-        UserEntity userEntity = userRepository.findUserByToken(token);
-        if (userEntity != null) {
-            userEntity.setActiveStatus(ActiveStatusCode.ACTIVE.getCode());
-            userRepository.save(userEntity);
-            return new ServerResponseDto(ResponseCase.OK);
-        } else {
-            return new ServerResponseDto(ResponseCase.INVALID_TOKEN);
-        }
-    }
-
 }

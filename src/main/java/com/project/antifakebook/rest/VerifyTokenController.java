@@ -3,15 +3,12 @@ package com.project.antifakebook.rest;
 import com.project.antifakebook.dto.ServerResponseDto;
 
 import com.project.antifakebook.service.VerifyTokenService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.ParseException;
 
-@RequestMapping("/api")
+@RequestMapping("/api/verify-token")
 @RestController
 public class VerifyTokenController {
     private final VerifyTokenService service;
@@ -20,10 +17,10 @@ public class VerifyTokenController {
     }
     @GetMapping("/get-verify-code")
     public ServerResponseDto getVerifyCode(@RequestParam String email,HttpServletRequest servletRequest) throws ParseException {
-        return service.getVerifyToken(email, servletRequest);
+        return service.getVerifyTokenService(email, servletRequest);
     }
-    @GetMapping("/registration-confirm")
-    public ServerResponseDto confirmRegistration(@RequestParam String token) {
-        return service.confirmRegistration(token);
+    @GetMapping("/check-verify-code")
+    public ServerResponseDto confirmRegistration(@RequestParam String token, @RequestParam String email) throws ParseException {
+        return service.checkVerifyCode(token, email);
     }
 }

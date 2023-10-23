@@ -8,7 +8,7 @@ import com.project.antifakebook.service.UserService;
 
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
+
 
 
 @RestController
@@ -27,8 +27,8 @@ public class AuthenticController {
     }
 
     @PostMapping("/sign-up")
-    public ServerResponseDto registerAccount(@RequestBody RegisterAccountRequestDto requestDto, HttpServletRequest servletRequest) {
-        return userService.registerAccount(requestDto,servletRequest);
+    public ServerResponseDto registerAccount(@RequestBody RegisterAccountRequestDto requestDto) {
+        return userService.registerAccount(requestDto);
     }
 
 }

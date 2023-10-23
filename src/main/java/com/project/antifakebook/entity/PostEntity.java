@@ -19,7 +19,7 @@ public class PostEntity {
     private Long id;
     private Long userId;
     private String described;
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     private Status status;
     private String url;
     public PostEntity(SavePostRequestDto requestDto) {
