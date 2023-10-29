@@ -16,4 +16,5 @@ public interface ResponseCase {
     ResponseStatus NOT_ENOUGH_COINS = new ResponseStatus(9991,"NOT ENOUGH COINS");
     ResponseStatus INVALID_PARAMETER = new ResponseStatus(1004,"INVALID PARAMETER");
     ResponseStatus PARAMETER_IS_NOT_ENOUGH = new ResponseStatus(1002,"PARAMETER IS NOT ENOUGH");
+    ResponseStatus INVALID_FILE_UPLOAD = new ResponseStatus("INVALID FILE UPLOAD");
 }

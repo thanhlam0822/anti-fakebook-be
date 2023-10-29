@@ -1,30 +1,25 @@
 package com.project.antifakebook.entity;
 
+import com.project.antifakebook.enums.RateType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-
+import java.util.Date;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
-@Table(name = "post_file")
-public class PostFileEntity {
+@Table(name = "rate")
+public class RateEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
-    private String type;
+    private Long userId;
     private Long postId;
-
-    public PostFileEntity(String name, String type, Long postId) {
-        this.name = name;
-        this.type = type;
-        this.postId = postId;
-    }
-
-
+    @Enumerated(EnumType.STRING)
+    private RateType rateType;
+    private Date createdDate;
 }
