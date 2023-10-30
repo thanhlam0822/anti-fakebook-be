@@ -17,4 +17,5 @@ public interface ResponseCase {
     ResponseStatus INVALID_PARAMETER = new ResponseStatus(1004,"INVALID PARAMETER");
     ResponseStatus PARAMETER_IS_NOT_ENOUGH = new ResponseStatus(1002,"PARAMETER IS NOT ENOUGH");
     ResponseStatus INVALID_FILE_UPLOAD = new ResponseStatus("INVALID FILE UPLOAD");
+    ResponseStatus POST_IS_NOT_EXISTED = new ResponseStatus(9992,"POST IS NOT EXISTED");
 }

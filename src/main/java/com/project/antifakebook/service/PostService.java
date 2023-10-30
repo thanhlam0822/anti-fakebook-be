@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 
 @Service
@@ -78,11 +79,13 @@ public class PostService {
         }
     }
     public void addImageFileToPost(MultipartFile[] files, Long postId) {
+        AtomicInteger imageIndex = new AtomicInteger();
         List<PostImageEntity> fileEntities = new ArrayList<>();
         Arrays.asList(files).forEach(file -> {
             String url = uploadDirForPostImage + file.getOriginalFilename();
-            PostImageEntity fileEntity = new PostImageEntity(file.getOriginalFilename(), postId,url);
+            PostImageEntity fileEntity = new PostImageEntity(file.getOriginalFilename(), postId,url, imageIndex.get());
             fileEntities.add(fileEntity);
+            imageIndex.getAndIncrement();
             try {
                 FileUploadUtil.saveFile(uploadDirForPostImage, file.getOriginalFilename(), file);
             } catch (IOException e) {
@@ -105,31 +108,42 @@ public class PostService {
         });
         postVideoRepository.saveAll(fileEntities);
     }
-    public ServerResponseDto getPost(Long userId,Long postId) {
+
+    public ServerResponseDto getPost(Long userId, Long postId) {
         PostEntity postEntity = postRepository.findById(postId).orElse(null);
-        GetPostResponseDto responseDto = null ;
-        if(postEntity != null) {
-             responseDto = new GetPostResponseDto
-                     (       postEntity,
-                             countReactOfPost(postId,ReactType.KUDOS),
-                             countReactOfPost(postId,ReactType.DISAPPOINTED),
-                             countRateOfPost(postId,RateType.FAKE),
-                             countRateOfPost(postId,RateType.TRUST),
-                             isRate(userId,postId),
-                             isMark(userId,postId),
-                             getImageOfPostDto(postId),
-                             getVideoOfPostDto(postId),
-                             getAuthorInformationOfPost(postEntity.getUserId(),postId),
-                             getCategoryOfPost(postId),
-                             postEntity.getPostState(),
-                             isAuthorBlockCurrentUser(userId,postEntity.getUserId()),
-                             canEdit(userId,postEntity),
-                             postEntity.getBannedStatus(),
-                             canMark(userId,postId),
-                             canRate(userId,postId)
-                             );
+        GetPostResponseDto responseDto = null;
+        if (postEntity != null) {
+            if (postEntity.getBannedStatus().getCode().equals(BannedStatus.LOCKED.getCode())
+                    || postEntity.getBannedStatus().getCode().equals(BannedStatus.BANNED_IN_SOME_COUNTRY.getCode())) {
+                return new ServerResponseDto(ResponseCase.POST_IS_NOT_EXISTED);
+            } else if (Boolean.TRUE.equals(isAuthorBlockCurrentUser(userId, postEntity.getUserId()))) {
+                responseDto = new GetPostResponseDto(true);
+            } else {
+                responseDto = getUnlockPost(postEntity, userId, postId);
+            }
         }
-        return new ServerResponseDto(ResponseCase.OK,responseDto);
+        return new ServerResponseDto(ResponseCase.OK, responseDto);
+    }
+    public GetPostResponseDto getUnlockPost(PostEntity postEntity,Long userId,Long postId) {
+        return new GetPostResponseDto
+                (       postEntity,
+                        countReactOfPost(postId,ReactType.KUDOS),
+                        countReactOfPost(postId,ReactType.DISAPPOINTED),
+                        countRateOfPost(postId,RateType.FAKE),
+                        countRateOfPost(postId,RateType.TRUST),
+                        isRate(userId,postId),
+                        isMark(userId,postId),
+                        getImageOfPostDto(postId),
+                        getVideoOfPostDto(postId),
+                        getAuthorInformationOfPost(postEntity.getUserId(),postId),
+                        getCategoryOfPost(postId),
+                        postEntity.getPostState(),
+                        isAuthorBlockCurrentUser(userId,postEntity.getUserId()),
+                        canEdit(userId,postEntity),
+                        postEntity.getBannedStatus().getCode(),
+                        canMark(userId,postId),
+                        canRate(userId,postId)
+                );
     }
     public Integer countReactOfPost(Long postId, ReactType reactType) {
         return postReactRepository.countReactOfPost(postId,reactType);
@@ -144,7 +158,7 @@ public class PostService {
         return postRateRepository.isMark(userId,postId) > 0;
     }
     public List<GetPostImageResponseDto> getImageOfPostDto(Long postId) {
-        List<PostImageEntity> postImageEntities = postImageRepository.findByPostId(postId);
+        List<PostImageEntity> postImageEntities = postImageRepository.findByPostIdOrderByImageIndexAsc(postId);
         List<GetPostImageResponseDto> dtos = new ArrayList<>();
         for(PostImageEntity entity : postImageEntities) {
             GetPostImageResponseDto dto = new GetPostImageResponseDto(entity.getId(), entity.getUrl());
@@ -197,5 +211,24 @@ public class PostService {
     }
     public Boolean canRate(Long userId,Long postId) {
         return !isRate(userId,postId);
+    }
+    public ServerResponseDto editPost() {
+        return null;
+    }
+    public void editPostImage(Long postId,MultipartFile[] files,List<Integer> imageSort ) {
+        AtomicInteger i = new AtomicInteger();
+        List<PostImageEntity> fileEntities = new ArrayList<>();
+        Arrays.asList(files).forEach(file -> {
+            String url = uploadDirForPostImage + file.getOriginalFilename();
+            PostImageEntity fileEntity = new PostImageEntity(file.getOriginalFilename(), postId,url, imageSort.get(i.get()));
+            fileEntities.add(fileEntity);
+            i.getAndIncrement();
+            try {
+                FileUploadUtil.saveFile(uploadDirForPostImage, file.getOriginalFilename(), file);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        postImageRepository.saveAll(fileEntities);
     }
 }

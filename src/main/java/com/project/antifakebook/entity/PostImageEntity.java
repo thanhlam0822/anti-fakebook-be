@@ -20,10 +20,12 @@ public class PostImageEntity {
     private Long postId;
     private Date dateUpload;
     private String url;
-    public PostImageEntity(String name,Long postId,String url) {
+    private Integer imageIndex;
+    public PostImageEntity(String name,Long postId,String url,Integer imageIndex) {
         this.name = name;
         this.postId = postId;
         this.dateUpload = new Date();
         this.url = url;
+        this.imageIndex = imageIndex;
     }
 }

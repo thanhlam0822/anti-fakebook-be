@@ -6,6 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum BannedStatus {
+    NORMAL(0),
     LOCKED(1),
     BANNED_IN_SOME_COUNTRY(2),
     BANNED_CONTENT(3);

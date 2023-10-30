@@ -2,7 +2,6 @@ package com.project.antifakebook.dto.post;
 
 
 import com.project.antifakebook.entity.PostEntity;
-import com.project.antifakebook.enums.BannedStatus;
 import com.project.antifakebook.enums.PostState;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,7 +32,7 @@ public class GetPostResponseDto {
     private PostState state;
     private Boolean isBlock;
     private Boolean canEdit;
-    private BannedStatus bannedStatus;
+    private Integer bannedStatus;
     private Boolean canMark;
     private Boolean canRate;
     public GetPostResponseDto(PostEntity postEntity,Integer kudos,Integer disappointed,Integer fakes,Integer trusts,
@@ -44,7 +43,7 @@ public class GetPostResponseDto {
                               List<GetCategoryOfPostDto> categoryOfPostDtos,
                               PostState state,
                               Boolean isBlock ,Boolean canEdit,
-                              BannedStatus bannedStatus,Boolean canMark,Boolean canRate) {
+                              Integer bannedStatus,Boolean canMark,Boolean canRate) {
         this.id = postEntity.getId();
         this.described = postEntity.getDescribed();
         this.createdDate = postEntity.getCreatedDate();
@@ -65,5 +64,8 @@ public class GetPostResponseDto {
         this.bannedStatus = bannedStatus;
         this.canMark = canMark;
         this.canRate = canRate;
+    }
+    public GetPostResponseDto(Boolean isBlock) {
+        this.isBlock = isBlock;
     }
 }

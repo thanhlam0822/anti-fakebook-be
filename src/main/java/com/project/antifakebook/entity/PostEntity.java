@@ -40,5 +40,7 @@ public class PostEntity {
         this.status = requestDto.getStatus();
         this.postState = requestDto.getState();
         this.createdDate = new Date();
+        this.isOldVersion = false;
+        this.bannedStatus = BannedStatus.NORMAL;
     }
 }
