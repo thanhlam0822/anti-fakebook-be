@@ -13,4 +13,5 @@ public interface PostReactRepository extends JpaRepository<ReactEntity,Long> {
     Integer countReactOfPost(Long postId, ReactType reactType);
     @Query("select count(r) from ReactEntity  r where r.userId = ?1 and r.postId = ?2")
     Integer isRate(Long userId,Long postId);
+    ReactEntity findByPostIdAndAndReactTypeAndUserId(Long postId,ReactType reactType,Long userId);
 }

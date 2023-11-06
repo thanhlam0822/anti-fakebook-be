@@ -3,6 +3,7 @@ package com.project.antifakebook.service;
 import com.project.antifakebook.dto.ResponseCase;
 import com.project.antifakebook.dto.ServerResponseDto;
 import com.project.antifakebook.dto.post.*;
+import com.project.antifakebook.dto.rate.GetRateResponseDto;
 import com.project.antifakebook.entity.*;
 
 import com.project.antifakebook.enums.BannedStatus;
@@ -13,6 +14,7 @@ import com.project.antifakebook.repository.*;
 import com.project.antifakebook.util.FileUploadUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
 
 
 import java.io.IOException;
@@ -33,13 +35,15 @@ public class PostService {
     private final PostVideoRepository postVideoRepository;
     private final CategoryRepository categoryRepository;
     private final BlockUserRepository blockUserRepository;
+    private final PostReportRepository postReportRepository;
     public PostService(PostRepository postRepository,
                        UserRepository userRepository,
                        OldVersionOfPostRepository oldVersionOfPostRepository,
                        PostReactRepository postReactRepository,PostRateRepository postRateRepository,
                        PostImageRepository postImageRepository,PostVideoRepository postVideoRepository,
                        CategoryRepository categoryRepository,
-                       BlockUserRepository blockUserRepository) {
+                       BlockUserRepository blockUserRepository,
+                       PostReportRepository postReportRepository) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.postReactRepository = postReactRepository;
@@ -49,6 +53,7 @@ public class PostService {
         this.oldVersionOfPostRepository = oldVersionOfPostRepository;
         this.categoryRepository = categoryRepository;
         this.blockUserRepository = blockUserRepository;
+        this.postReportRepository = postReportRepository;
     }
 
     public boolean isUserHasEnoughCoins(Long userId) {
@@ -212,23 +217,117 @@ public class PostService {
     public Boolean canRate(Long userId,Long postId) {
         return !isRate(userId,postId);
     }
-    public ServerResponseDto editPost() {
-        return null;
-    }
-    public void editPostImage(Long postId,MultipartFile[] files,List<Integer> imageSort ) {
-        AtomicInteger i = new AtomicInteger();
-        List<PostImageEntity> fileEntities = new ArrayList<>();
-        Arrays.asList(files).forEach(file -> {
-            String url = uploadDirForPostImage + file.getOriginalFilename();
-            PostImageEntity fileEntity = new PostImageEntity(file.getOriginalFilename(), postId,url, imageSort.get(i.get()));
-            fileEntities.add(fileEntity);
-            i.getAndIncrement();
-            try {
-                FileUploadUtil.saveFile(uploadDirForPostImage, file.getOriginalFilename(), file);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+//    public ServerResponseDto editPost() {
+//        return null;
+//    }
+//    public void editPostImage(Long postId,MultipartFile[] files,List<Integer> imageSort ) {
+//        AtomicInteger i = new AtomicInteger();
+//        List<PostImageEntity> fileEntities = new ArrayList<>();
+//        Arrays.asList(files).forEach(file -> {
+//            String url = uploadDirForPostImage + file.getOriginalFilename();
+//            PostImageEntity fileEntity = new PostImageEntity(file.getOriginalFilename(), postId,url, imageSort.get(i.get()));
+//            fileEntities.add(fileEntity);
+//            i.getAndIncrement();
+//            try {
+//                FileUploadUtil.saveFile(uploadDirForPostImage, file.getOriginalFilename(), file);
+//            } catch (IOException e) {
+//                throw new RuntimeException(e);
+//            }
+//        });
+//        postImageRepository.saveAll(fileEntities);
+//    }
+    public ServerResponseDto deletePost(Long postId,Long userId) {
+        ServerResponseDto serverResponseDto;
+        Optional<PostEntity> postEntity = postRepository.findById(postId);
+        if(postEntity.isPresent()) {
+            if(isUserHasEnoughCoins(userId)) {
+                postRepository.deleteById(postId);
+                userRepository.minusUserFees(userId);
+                serverResponseDto = new ServerResponseDto(ResponseCase.OK);
+            } else {
+                serverResponseDto = new ServerResponseDto(ResponseCase.NOT_ENOUGH_COINS);
             }
-        });
-        postImageRepository.saveAll(fileEntities);
+        } else {
+            serverResponseDto = new ServerResponseDto(ResponseCase.POST_IS_NOT_EXISTED);
+        }
+        return serverResponseDto;
+    }
+    public ServerResponseDto reportPost(Long userId,PostReportRequestDto requestDto) {
+        ServerResponseDto serverResponseDto;
+        Optional<PostEntity> postEntity = postRepository.findById(requestDto.getPostId());
+        if(postEntity.isPresent()) {
+            PostReportEntity reportEntity = new PostReportEntity(requestDto,userId);
+            postReportRepository.save(reportEntity);
+            serverResponseDto = new ServerResponseDto(ResponseCase.OK);
+        } else {
+            serverResponseDto = new ServerResponseDto(ResponseCase.POST_IS_NOT_EXISTED);
+        }
+        return serverResponseDto;
+    }
+    public ServerResponseDto feel(Long userId,GetPostFeelRequestDto requestDto) {
+        ReactEntity reactEntity = null;
+        ServerResponseDto serverResponseDto;
+        Long postId = requestDto.getPostId();
+        Integer typeReact = requestDto.getTypeReact();
+        Optional<PostEntity> postEntity = postRepository.findById(postId);
+        if(postEntity.isPresent()) {
+            deleteFeelIfExist(postId,typeReact,userId);
+            if(typeReact == 0) {
+                reactEntity = new ReactEntity(postId,ReactType.DISAPPOINTED,userId);
+            } else if(typeReact == 1) {
+                reactEntity = new ReactEntity(postId,ReactType.KUDOS,userId);
+            }
+            postReactRepository.save(Objects.requireNonNull(reactEntity));
+            GetPostFeelResponseDto responseDto= new GetPostFeelResponseDto(countReactOfPost(postId,ReactType.DISAPPOINTED),
+                    countReactOfPost(postId,ReactType.KUDOS));
+            serverResponseDto = new ServerResponseDto(ResponseCase.OK,responseDto);
+        } else {
+            serverResponseDto = new ServerResponseDto(ResponseCase.POST_IS_NOT_EXISTED);
+        }
+        return serverResponseDto;
+    }
+    public void deleteFeelIfExist(Long postId,Integer typeReact,Long userId) {
+        ReactEntity reactEntity = null;
+        if(typeReact == 0 ) {
+            reactEntity = postReactRepository.findByPostIdAndAndReactTypeAndUserId
+                    (postId,ReactType.DISAPPOINTED,userId);
+        } else if(typeReact == 1) {
+            reactEntity = postReactRepository.findByPostIdAndAndReactTypeAndUserId
+                    (postId,ReactType.KUDOS,userId);
+        }
+        if(reactEntity != null) {
+            postReactRepository.deleteById(reactEntity.getId());
+        }
+    }
+    public ServerResponseDto getMarkComment(GetMarkCommentRequestDto requestDto,Long currentUserId) {
+        GetMarkResponseDto responseDto ;
+        List<GetMarkResponseDto> responseDtos = new ArrayList<>();
+        List<GetRateResponseDto> rateEntities =
+                postRateRepository.findByPostId(requestDto.getPostId(),requestDto.getIndex(),requestDto.getCount(),currentUserId);
+        for(GetRateResponseDto entity : rateEntities) {
+            responseDto = new GetMarkResponseDto();
+            responseDto.setId(entity.getId());
+            responseDto.setMarkContent(entity.getMarkContent());
+            responseDto.setTypeOfMark(entity.getTypeOfMark());
+            UserEntity user = userRepository.findById(entity.getUserId()).orElse(null);
+            assert user != null;
+            MarkPosterResponseDto poster = new MarkPosterResponseDto(user.getId(),user.getName(),user.getAvatarLink());
+            responseDto.setPoster(poster);
+            List<GetMarkCommentResponseDto> markCommentResponseDtos = new ArrayList<>();
+            List<GetRateResponseDto> comments = postRateRepository.getByPostIdAndParentId(requestDto.getPostId(), entity.getId(),currentUserId);
+            for(GetRateResponseDto commentEntity: comments) {
+                GetMarkCommentResponseDto commentResponseDto = new GetMarkCommentResponseDto();
+                commentResponseDto.setContent(commentEntity.getMarkContent());
+                commentResponseDto.setCreatedDate(commentEntity.getCreatedDate());
+                UserEntity userEntity = userRepository.findById(commentEntity.getUserId()).orElse(null);
+                assert userEntity != null;
+                MarkPosterResponseDto poster2 = new MarkPosterResponseDto(userEntity.getId(),userEntity.getName(),userEntity.getAvatarLink());
+                commentResponseDto.setPoster(poster2);
+                markCommentResponseDtos.add(commentResponseDto);
+            }
+            responseDto.setComments(markCommentResponseDtos);
+            responseDtos.add(responseDto);
+        }
+      return new ServerResponseDto(ResponseCase.OK,responseDtos);
     }
 }

@@ -47,6 +47,8 @@ public class UserEntity {
     private Integer activeStatus;
     @Column
     private Integer coins;
+    @Column
+    private Boolean isLock;
 
     public UserEntity(String email, String password) {
         this.email = email;

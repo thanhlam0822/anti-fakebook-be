@@ -22,4 +22,11 @@ public class ReactEntity {
     @Enumerated(EnumType.STRING)
     private ReactType reactType;
     private Date createdDate;
+
+    public ReactEntity( Long postId, ReactType reactType,Long userId) {
+        this.postId = postId;
+        this.reactType = reactType;
+        this.createdDate = new Date();
+        this.userId = userId;
+    }
 }

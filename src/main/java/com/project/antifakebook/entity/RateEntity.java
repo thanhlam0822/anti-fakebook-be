@@ -19,6 +19,8 @@ public class RateEntity {
     private Long id;
     private Long userId;
     private Long postId;
+    private String content;
+    private Long parentId;
     @Enumerated(EnumType.STRING)
     private RateType rateType;
     private Date createdDate;
