@@ -4,6 +4,7 @@ import com.project.antifakebook.dto.ResponseCase;
 import com.project.antifakebook.dto.ServerResponseDto;
 import com.project.antifakebook.dto.post.*;
 import com.project.antifakebook.dto.rate.GetRateResponseDto;
+import com.project.antifakebook.dto.rate.SetMarkCommentRequestDto;
 import com.project.antifakebook.entity.*;
 
 import com.project.antifakebook.enums.BannedStatus;
@@ -303,12 +304,13 @@ public class PostService {
         GetMarkResponseDto responseDto ;
         List<GetMarkResponseDto> responseDtos = new ArrayList<>();
         List<GetRateResponseDto> rateEntities =
-                postRateRepository.findByPostId(requestDto.getPostId(),requestDto.getIndex(),requestDto.getCount(),currentUserId);
+                postRateRepository.findByPostId(requestDto.getPostId(),requestDto.getIndex(),requestDto.getCount());
         for(GetRateResponseDto entity : rateEntities) {
             responseDto = new GetMarkResponseDto();
             responseDto.setId(entity.getId());
             responseDto.setMarkContent(entity.getMarkContent());
             responseDto.setTypeOfMark(entity.getTypeOfMark());
+            responseDto.setIsBlock(isAuthorBlockCurrentUser(currentUserId,entity.getUserId()));
             UserEntity user = userRepository.findById(entity.getUserId()).orElse(null);
             assert user != null;
             MarkPosterResponseDto poster = new MarkPosterResponseDto(user.getId(),user.getName(),user.getAvatarLink());
@@ -329,5 +331,36 @@ public class PostService {
             responseDtos.add(responseDto);
         }
       return new ServerResponseDto(ResponseCase.OK,responseDtos);
+    }
+    public ServerResponseDto setMarkComment(SetMarkCommentRequestDto requestDto,Long currentUserId) {
+        GetMarkResponseDto responseDto = new GetMarkResponseDto();
+        Optional<PostEntity> postEntity = postRepository.findById(requestDto.getId());
+        if(postEntity.isPresent()) {
+            UserEntity user = userRepository.findById(currentUserId).orElse(null);
+            requestDto.setCurrentUserId(currentUserId);
+            RateEntity rateEntity = new RateEntity(requestDto);
+            if(requestDto.getMarkType() != null) {
+                if(requestDto.getMarkType() == 0) {
+                    rateEntity.setRateType(RateType.FAKE);
+                } else if (requestDto.getMarkType() == 1) {
+                    rateEntity.setRateType(RateType.TRUST);
+                }
+            } else {
+                rateEntity.setRateType(null);
+            }
+            postRateRepository.save(rateEntity);
+            responseDto.setId(rateEntity.getId());
+            responseDto.setMarkContent(rateEntity.getContent());
+            if(rateEntity.getRateType() != null) {
+                responseDto.setTypeOfMark(rateEntity.getRateType().toString());
+            } else {
+                responseDto.setTypeOfMark(null);
+            }
+            assert user != null;
+            MarkPosterResponseDto poster = new MarkPosterResponseDto(currentUserId,
+                    user.getName(),user.getAvatarLink());
+            responseDto.setPoster(poster);
+        }
+        return new ServerResponseDto(ResponseCase.OK,responseDto);
     }
 }

@@ -8,16 +8,13 @@ import com.project.antifakebook.dto.post.PostReportRequestDto;
 import com.project.antifakebook.dto.post.SavePostRequestDto;
 
 
+import com.project.antifakebook.dto.rate.SetMarkCommentRequestDto;
 import com.project.antifakebook.service.PostService;
 
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-
-
-
 
 @RestController
 @RequestMapping("/api/post")
@@ -55,10 +52,15 @@ public class PostController {
                                   @RequestBody GetPostFeelRequestDto requestDto) {
         return postService.feel(currentUser.getUserId(),requestDto);
     }
-    @PostMapping("test")
-    public ServerResponseDto test(@AuthenticationPrincipal CustomUserDetails currentUser,
+    @PostMapping("get-mark-comment")
+    public ServerResponseDto getMarkComment(@AuthenticationPrincipal CustomUserDetails currentUser,
                                   @RequestBody GetMarkCommentRequestDto requestDto) {
         return postService.getMarkComment(requestDto, currentUser.getUserId());
+    }
+    @PostMapping("set-mark-comment")
+    public ServerResponseDto setMarkComment(@AuthenticationPrincipal CustomUserDetails currentUser,
+                                            @RequestBody SetMarkCommentRequestDto requestDto)  {
+        return postService.setMarkComment(requestDto,currentUser.getUserId());
     }
 }
 
