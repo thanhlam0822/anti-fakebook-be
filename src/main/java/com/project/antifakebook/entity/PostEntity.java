@@ -1,7 +1,6 @@
 package com.project.antifakebook.entity;
 
 import com.project.antifakebook.dto.post.SavePostRequestDto;
-import com.project.antifakebook.enums.BannedStatus;
 import com.project.antifakebook.enums.PostState;
 import com.project.antifakebook.enums.Status;
 import lombok.Getter;
@@ -21,6 +20,7 @@ public class PostEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long userId;
+    private String name;
     private String described;
     @Enumerated(EnumType.STRING)
     private Status status;
@@ -28,8 +28,7 @@ public class PostEntity {
     @Enumerated(EnumType.STRING)
     private PostState postState;
     @Column(name = "banned_status")
-    @Enumerated(EnumType.STRING)
-    private BannedStatus bannedStatus;
+    private String bannedStatus;
     private String url;
     private Date modifiedDate;
     private Date createdDate;
@@ -41,6 +40,6 @@ public class PostEntity {
         this.postState = requestDto.getState();
         this.createdDate = new Date();
         this.isOldVersion = false;
-        this.bannedStatus = BannedStatus.NORMAL;
+        this.bannedStatus = "0";
     }
 }

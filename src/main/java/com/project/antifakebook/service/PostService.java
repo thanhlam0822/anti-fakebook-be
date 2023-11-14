@@ -1,18 +1,21 @@
 package com.project.antifakebook.service;
 
+
 import com.project.antifakebook.dto.ResponseCase;
 import com.project.antifakebook.dto.ServerResponseDto;
 import com.project.antifakebook.dto.post.*;
 import com.project.antifakebook.dto.rate.GetRateResponseDto;
 import com.project.antifakebook.dto.rate.SetMarkCommentRequestDto;
+
 import com.project.antifakebook.entity.*;
 
-import com.project.antifakebook.enums.BannedStatus;
+
 import com.project.antifakebook.enums.RateType;
 import com.project.antifakebook.enums.ReactType;
 import com.project.antifakebook.repository.*;
 
 import com.project.antifakebook.util.FileUploadUtil;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -119,8 +122,8 @@ public class PostService {
         PostEntity postEntity = postRepository.findById(postId).orElse(null);
         GetPostResponseDto responseDto = null;
         if (postEntity != null) {
-            if (postEntity.getBannedStatus().getCode().equals(BannedStatus.LOCKED.getCode())
-                    || postEntity.getBannedStatus().getCode().equals(BannedStatus.BANNED_IN_SOME_COUNTRY.getCode())) {
+            if (Objects.equals(postEntity.getBannedStatus(), "1")
+                    || Objects.equals(postEntity.getBannedStatus(), "3")) {
                 return new ServerResponseDto(ResponseCase.POST_IS_NOT_EXISTED);
             } else if (Boolean.TRUE.equals(isAuthorBlockCurrentUser(userId, postEntity.getUserId()))) {
                 responseDto = new GetPostResponseDto(true);
@@ -146,7 +149,7 @@ public class PostService {
                         postEntity.getPostState(),
                         isAuthorBlockCurrentUser(userId,postEntity.getUserId()),
                         canEdit(userId,postEntity),
-                        postEntity.getBannedStatus().getCode(),
+                        postEntity.getBannedStatus(),
                         canMark(userId,postId),
                         canRate(userId,postId)
                 );
@@ -209,7 +212,7 @@ public class PostService {
             return true;
         } else {
             return postEntity.getUserId().equals(currentUserId) &&
-                    !Objects.equals(postEntity.getBannedStatus().getCode(), BannedStatus.LOCKED.getCode());
+                    !Objects.equals(postEntity.getBannedStatus(), "1");
         }
     }
     public Boolean canMark(Long userId,Long postId) {
@@ -360,7 +363,47 @@ public class PostService {
             MarkPosterResponseDto poster = new MarkPosterResponseDto(currentUserId,
                     user.getName(),user.getAvatarLink());
             responseDto.setPoster(poster);
+            List<GetRateResponseDto> comments = postRateRepository.getCommentAfterSetMark(
+                    requestDto.getId(),requestDto.getIndex(),requestDto.getCount());
+            List<GetMarkCommentResponseDto> markCommentResponseDtos = new ArrayList<>();
+            for(GetRateResponseDto comment : comments) {
+                GetMarkCommentResponseDto commentResponseDto = new GetMarkCommentResponseDto();
+                commentResponseDto.setContent(comment.getMarkContent());
+                commentResponseDto.setCreatedDate(comment.getCreatedDate());
+                UserEntity userComment = userRepository.findById(comment.getUserId()).orElse(null);
+                assert userComment != null;
+                MarkPosterResponseDto poster2 = new MarkPosterResponseDto(
+                        userComment.getId(),userComment.getName(),userComment.getAvatarLink());
+                commentResponseDto.setPoster(poster2);
+                markCommentResponseDtos.add(commentResponseDto);
+            }
+            responseDto.setComments(markCommentResponseDtos);
         }
         return new ServerResponseDto(ResponseCase.OK,responseDto);
     }
+    public ServerResponseDto searchPosts(SearchPostsRequestDto requestDto,Long userId) {
+        requestDto.setUserId(userId);
+        List<SearchPostsResponseDto> responseDtos = new ArrayList<>();
+        List<PostEntity> postEntities = postRepository.searchPosts
+                (requestDto.getKeyword(), requestDto.getIndex(),requestDto.getCount());
+        for(PostEntity entity : postEntities) {
+            UserEntity postUser = userRepository.findById(entity.getUserId()).orElse(null);
+            assert postUser != null;
+            SearchPostsAuthorResponseDto author = new SearchPostsAuthorResponseDto(postUser.getId(),postUser.getName(),postUser.getAvatarLink());
+            SearchPostsResponseDto responseDto = new SearchPostsResponseDto(
+                    entity.getId(),
+                    entity.getName(),
+                    getImageOfPostDto(entity.getId()),
+                    getVideoOfPostDto(entity.getId()),
+                    postReactRepository.totalFeelOfPost(entity.getId()),
+                    postRateRepository.totalMarkCommentOfPost(entity.getId()),
+                    postReactRepository.existsByPostIdAndUserId(entity.getId(), requestDto.getUserId()),
+                    author,
+                    entity.getDescribed()
+                    );
+            responseDtos.add(responseDto);
+        }
+        return new ServerResponseDto(ResponseCase.OK,responseDtos);
+    }
+
 }

@@ -3,6 +3,8 @@ package com.project.antifakebook.enums;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+
+
 @Getter
 @AllArgsConstructor
 public enum BannedStatus {
@@ -11,4 +13,5 @@ public enum BannedStatus {
     BANNED_IN_SOME_COUNTRY(2),
     BANNED_CONTENT(3);
     private final Integer code;
+
 }

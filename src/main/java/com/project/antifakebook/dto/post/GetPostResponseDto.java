@@ -16,6 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 public class GetPostResponseDto {
     private Long id;
+    private String name;
     private String described;
     private Date createdDate;
     private Date modifiedDate;
@@ -32,7 +33,7 @@ public class GetPostResponseDto {
     private PostState state;
     private Boolean isBlock;
     private Boolean canEdit;
-    private Integer bannedStatus;
+    private String bannedStatus;
     private Boolean canMark;
     private Boolean canRate;
     public GetPostResponseDto(PostEntity postEntity,Integer kudos,Integer disappointed,Integer fakes,Integer trusts,
@@ -43,8 +44,9 @@ public class GetPostResponseDto {
                               List<GetCategoryOfPostDto> categoryOfPostDtos,
                               PostState state,
                               Boolean isBlock ,Boolean canEdit,
-                              Integer bannedStatus,Boolean canMark,Boolean canRate) {
+                              String bannedStatus,Boolean canMark,Boolean canRate) {
         this.id = postEntity.getId();
+        this.name = postEntity.getName();
         this.described = postEntity.getDescribed();
         this.createdDate = postEntity.getCreatedDate();
         this.modifiedDate = postEntity.getModifiedDate();

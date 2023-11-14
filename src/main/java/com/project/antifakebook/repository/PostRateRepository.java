@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+
 import java.util.List;
 
 @Repository
@@ -35,4 +36,17 @@ public interface PostRateRepository extends JpaRepository<RateEntity,Long> {
     List<GetRateResponseDto> getByPostIdAndParentId(@Param("postId") Long postId,
                                             @Param("parentId") Long parentId,
                                             @Param("currentUserId") Long currentUserId);
+    @Query(value = "WITH ranked_mark AS "
+            +  "(SELECT *,"
+            +  "           ROW_NUMBER() OVER (PARTITION BY post_id ORDER BY created_date) AS mark_index"
+            +  " FROM rate r where r.post_id = :postId "
+            +  ")"
+            +  "SELECT r.id as id, r.content as markContent,r.rate_type as typeOfMark,r.post_id as postId,r.user_id as userId,r.created_date as createdDate "
+            +  "FROM ranked_mark r WHERE "
+            +  " r.mark_index >= :markIndex order by r.created_date desc limit :count",nativeQuery = true)
+    List<GetRateResponseDto> getCommentAfterSetMark(@Param("postId") Long postId,
+                                                    @Param("markIndex") Integer markIndex,
+                                                    @Param("count") Integer count);
+    @Query("select count(r) from RateEntity r where r.postId = ?1")
+    Integer totalMarkCommentOfPost(Long postId);
 }

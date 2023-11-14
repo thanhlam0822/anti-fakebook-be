@@ -2,10 +2,7 @@ package com.project.antifakebook.rest;
 
 import com.project.antifakebook.config.CustomUserDetails;
 import com.project.antifakebook.dto.ServerResponseDto;
-import com.project.antifakebook.dto.post.GetMarkCommentRequestDto;
-import com.project.antifakebook.dto.post.GetPostFeelRequestDto;
-import com.project.antifakebook.dto.post.PostReportRequestDto;
-import com.project.antifakebook.dto.post.SavePostRequestDto;
+import com.project.antifakebook.dto.post.*;
 
 
 import com.project.antifakebook.dto.rate.SetMarkCommentRequestDto;
@@ -61,6 +58,11 @@ public class PostController {
     public ServerResponseDto setMarkComment(@AuthenticationPrincipal CustomUserDetails currentUser,
                                             @RequestBody SetMarkCommentRequestDto requestDto)  {
         return postService.setMarkComment(requestDto,currentUser.getUserId());
+    }
+    @PostMapping("search")
+    public ServerResponseDto search(@AuthenticationPrincipal CustomUserDetails currentUser,
+                                    @RequestBody SearchPostsRequestDto requestDto) {
+        return postService.searchPosts(requestDto, currentUser.getUserId());
     }
 }
 
