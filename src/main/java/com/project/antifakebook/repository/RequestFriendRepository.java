@@ -15,4 +15,5 @@ public interface RequestFriendRepository extends JpaRepository<RequestFriendEnti
     List<RequestFriendEntity> getRequestFriendByUserId(Long userId,Integer index,Integer count);
     @Query("select count(r) from RequestFriendEntity r where r.userId = ?1 and r.isAccept = false ")
     Integer getTotalRequestOfUser(Long userId);
+    RequestFriendEntity findRequestFriendEntitiesByUserIdAndFriendIdAndIsAcceptFalse(Long userId,Long fiendId);
 }

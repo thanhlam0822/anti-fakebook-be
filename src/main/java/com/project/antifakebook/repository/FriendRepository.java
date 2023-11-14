@@ -26,4 +26,5 @@ public interface FriendRepository extends JpaRepository<FriendEntity,Long> {
                                                  @Param("index") Integer index,
                                                  @Param("count") Integer count);
     Integer countFriendEntitiesByUserId(Long userId);
+    FriendEntity findByUserIdAndFriendId(Long userId,Long friendId);
 }

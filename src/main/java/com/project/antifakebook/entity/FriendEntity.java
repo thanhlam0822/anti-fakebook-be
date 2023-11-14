@@ -19,4 +19,9 @@ public class FriendEntity {
     private Long userId;
     private Long friendId;
     private Date createdDate;
+    public FriendEntity(Long userId,Long friendId) {
+        this.userId = userId;
+        this.friendId = friendId;
+        this.createdDate = new Date();
+    }
 }

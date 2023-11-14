@@ -20,4 +20,5 @@ public class RequestFriendEntity {
     private Long friendId;
     private Boolean isAccept;
     private Date createdDate;
+    private Date editDate;
 }
