@@ -2,15 +2,14 @@ package com.project.antifakebook.service;
 
 import com.project.antifakebook.dto.ResponseCase;
 import com.project.antifakebook.dto.ServerResponseDto;
-import com.project.antifakebook.dto.request_friend.GetFriendRequestResponseDto;
-import com.project.antifakebook.dto.request_friend.GetRequestedFriendsRequestDto;
-import com.project.antifakebook.dto.request_friend.SetAcceptFriendRequestDto;
-import com.project.antifakebook.dto.request_friend.UserFriendResponseDto;
+import com.project.antifakebook.dto.request_friend.*;
 import com.project.antifakebook.entity.FriendEntity;
 import com.project.antifakebook.entity.RequestFriendEntity;
+import com.project.antifakebook.entity.SuggestedFriendEntity;
 import com.project.antifakebook.entity.UserEntity;
 import com.project.antifakebook.repository.FriendRepository;
 import com.project.antifakebook.repository.RequestFriendRepository;
+import com.project.antifakebook.repository.SuggestedFriendRepository;
 import com.project.antifakebook.repository.UserRepository;
 
 
@@ -19,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -26,11 +26,16 @@ public class RequestFriendService {
     private final RequestFriendRepository requestFriendRepository;
     private final UserRepository userRepository;
     private final FriendRepository friendRepository;
+    private final SuggestedFriendRepository suggestedFriendRepository;
 
-    public RequestFriendService(RequestFriendRepository requestFriendRepository, UserRepository userRepository, FriendRepository friendRepository) {
+    public RequestFriendService(RequestFriendRepository requestFriendRepository,
+                                UserRepository userRepository,
+                                FriendRepository friendRepository,
+                                SuggestedFriendRepository suggestedFriendRepository) {
         this.requestFriendRepository = requestFriendRepository;
         this.userRepository = userRepository;
         this.friendRepository = friendRepository;
+        this.suggestedFriendRepository = suggestedFriendRepository;
     }
     public ServerResponseDto getRequestedFriends(Long userId,GetRequestedFriendsRequestDto requestDto) {
         GetFriendRequestResponseDto responseDto = new GetFriendRequestResponseDto();
@@ -80,6 +85,48 @@ public class RequestFriendService {
            serverResponseDto = setAcceptFriend(currentUserId,requestDto);
         } else {
             serverResponseDto = new ServerResponseDto(ResponseCase.ACTION_DONE_BEFORE);
+        }
+        return serverResponseDto;
+    }
+    public ServerResponseDto getListSuggestedFriends(Long currentUserId ,GetRequestedFriendsRequestDto requestDto) {
+        GetListSuggestedFriendResponseDto responseDto = new GetListSuggestedFriendResponseDto();
+        List<SuggestedFriendEntity> suggestedFriendEntities =
+                suggestedFriendRepository.getListSuggestedFriends(currentUserId,requestDto.getIndex(), requestDto.getCount());
+        List<ListFriendSuggestedResponseDto> list = new ArrayList<>();
+        for(SuggestedFriendEntity suggestedFriend : suggestedFriendEntities) {
+            UserEntity userEntity = userRepository.findById(suggestedFriend.getFriendId()).orElse(null);
+            assert userEntity != null;
+            ListFriendSuggestedResponseDto dto = new ListFriendSuggestedResponseDto();
+            dto.setUserId(userEntity.getId());
+            dto.setUsername(userEntity.getName());
+            dto.setAvatar(userEntity.getAvatarLink());
+            dto.setSameFriends(friendRepository.getSameFriendsAmount(currentUserId,suggestedFriend.getFriendId()));
+            list.add(dto);
+        }
+        responseDto.setListUsers(list);
+        return new ServerResponseDto(ResponseCase.OK,responseDto);
+    }
+    public ServerResponseDto setRequestFriend(Long currentUserId,Long userId) {
+
+        ServerResponseDto serverResponseDto;
+        Optional<UserEntity> userEntity = userRepository.findById(userId);
+        if(userEntity.isPresent()) {
+            RequestFriendEntity oldRequest = requestFriendRepository
+                    .findRequestFriendEntitiesByUserIdAndFriendIdAndIsAcceptFalse(currentUserId, userId);
+            if(oldRequest != null) {
+                serverResponseDto = new ServerResponseDto(ResponseCase.ACTION_DONE_BEFORE);
+            } else if (currentUserId == userId) {
+                serverResponseDto = new ServerResponseDto(ResponseCase.INVALID_PARAMETER);
+            }
+            else {
+                RequestFriendEntity requestFriendEntity = new RequestFriendEntity(currentUserId,userId);
+                requestFriendRepository.save(requestFriendEntity);
+                SetRequestFriendResponseDto responseDto = new SetRequestFriendResponseDto();
+                responseDto.setRequestedFriends(requestFriendRepository.countRequestFriendNumber(currentUserId));
+                serverResponseDto = new ServerResponseDto(ResponseCase.OK,responseDto);
+            }
+        } else {
+            serverResponseDto = new ServerResponseDto(ResponseCase.USER_IS_NOT_VALIDATED);
         }
         return serverResponseDto;
     }

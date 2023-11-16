@@ -169,6 +169,24 @@ public class UserService implements UserDetailsService {
         return user.getActiveStatus().equals(ActiveStatusCode.ACTIVE.getCode());
 
     }
+    public ServerResponseDto changePassword(Long currentUserId,String currentUserEmail,
+                                            ChangePasswordRequestDto requestDto) {
+        ServerResponseDto serverResponseDto;
+        UserEntity userEntity = userRepository.findById(currentUserId).orElse(null);
+        if(userEntity != null) {
+            if(ValidateRegisterAccountRequestUtils.validatePassword(requestDto.getNewPassword(),currentUserEmail)
+            && encoder.matches(requestDto.getPassword(),userEntity.getPassword())) {
+                userEntity.setPassword(encoder.encode(requestDto.getNewPassword()));
+                userRepository.save(userEntity);
+                serverResponseDto = new ServerResponseDto(ResponseCase.OK);
+            } else {
+                serverResponseDto = new ServerResponseDto(ResponseCase.INVALID_PASSWORD);
+            }
+        } else {
+                serverResponseDto = new ServerResponseDto(ResponseCase.USER_IS_NOT_VALIDATED);
+        }
+        return serverResponseDto;
+    }
 
 
 }

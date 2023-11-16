@@ -8,24 +8,25 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Entity
-@NoArgsConstructor
 @Getter
 @Setter
-@Table(name = "request_friend")
-public class RequestFriendEntity {
+@NoArgsConstructor
+@Table(name = "suggested_friend")
+public class SuggestedFriendEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long userId;
     private Long friendId;
-    private Boolean isAccept;
     private Date createdDate;
-    private Date editDate;
 
-    public RequestFriendEntity(Long userId, Long friendId) {
-        this.userId = userId;
-        this.friendId = friendId;
-        this.isAccept = false;
-        this.createdDate = new Date();
+    @Override
+    public String toString() {
+        return "SuggestedFriendEntity{" +
+                "id=" + id +
+                ", userId=" + userId +
+                ", friendId=" + friendId +
+                ", createdDate=" + createdDate +
+                '}';
     }
 }

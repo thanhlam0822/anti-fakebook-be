@@ -48,4 +48,5 @@ public class FriendService {
 
         return new ServerResponseDto(ResponseCase.OK,responseDtos);
     }
+
 }
