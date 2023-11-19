@@ -6,10 +6,7 @@ import com.project.antifakebook.dto.block_user.GetListBlockRequestDto;
 import com.project.antifakebook.service.BlockUserService;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/block")
@@ -23,5 +20,10 @@ public class BlockController {
     public ServerResponseDto getListBlocks(@AuthenticationPrincipal CustomUserDetails currentUser,
                                            @RequestBody GetListBlockRequestDto requestDto) {
         return blockUserService.getListBlocks(currentUser.getUserId(),requestDto);
+    }
+    @GetMapping("/set-block")
+    public ServerResponseDto setBlock(@AuthenticationPrincipal CustomUserDetails currentUser,
+                                      @RequestParam Long userId,@RequestParam Integer type) {
+        return blockUserService.setBlock(currentUser.getUserId(),userId,type);
     }
 }

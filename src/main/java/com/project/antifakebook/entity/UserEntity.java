@@ -49,6 +49,13 @@ public class UserEntity {
     private Integer coins;
     @Column
     private Boolean isLock;
+    private String coverImage;
+    private String country;
+    private String link;
+    private Boolean online;
+    private String description;
+    private String address;
+    private String city;
 
     public UserEntity(String email, String password) {
         this.email = email;

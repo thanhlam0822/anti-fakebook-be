@@ -3,10 +3,12 @@ package com.project.antifakebook.repository;
 import com.project.antifakebook.dto.block_user.GetListBlocksResponseDto;
 import com.project.antifakebook.entity.BlockUserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 @Repository
@@ -20,4 +22,8 @@ public interface BlockUserRepository extends JpaRepository<BlockUserEntity,Long>
     List<GetListBlocksResponseDto> getListBlocks(@Param("userId") Long userId,
                                                  @Param("index") Integer index,
                                                  @Param("count") Integer count);
+    @Modifying
+    @Transactional
+    void deleteByUserBlockedIdAndUserPostId(Long userId,Long currentUserId);
+
 }

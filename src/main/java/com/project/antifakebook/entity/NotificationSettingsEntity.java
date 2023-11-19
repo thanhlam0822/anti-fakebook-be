@@ -1,5 +1,6 @@
 package com.project.antifakebook.entity;
 
+import com.project.antifakebook.dto.notification_settings.SetPushSettingRequestDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -29,4 +30,18 @@ public class NotificationSettingsEntity {
     private Integer ledOn;
     private Long userId;
     private Date editDate;
+    public NotificationSettingsEntity(SetPushSettingRequestDto requestDto) {
+        this.likeComment = requestDto.getLikeComment();
+        this.fromFriends = requestDto.getFromFriends();
+        this.requestedFriend = requestDto.getRequestedFriend();
+        this.suggestedFriend = requestDto.getSuggestedFriend();
+        this.birthday = requestDto.getBirthday();
+        this.video = requestDto.getVideo();
+        this.report = requestDto.getReport();
+        this.soundOn = requestDto.getSoundOn();
+        this.notificationOn = requestDto.getNotificationOn();
+        this.vibrantOn = requestDto.getVibrantOn();
+        this.ledOn = requestDto.getLedOn();
+        this.editDate = new Date();
+    }
 }

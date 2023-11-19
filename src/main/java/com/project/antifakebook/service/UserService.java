@@ -5,10 +5,14 @@ import com.project.antifakebook.config.CustomUserDetails;
 import com.project.antifakebook.dto.ResponseCase;
 import com.project.antifakebook.dto.ServerResponseDto;
 import com.project.antifakebook.dto.account.*;
+
+import com.project.antifakebook.entity.FriendEntity;
 import com.project.antifakebook.entity.UserEntity;
 import com.project.antifakebook.entity.VerificationTokenEntity;
 
 import com.project.antifakebook.enums.ActiveStatusCode;
+
+import com.project.antifakebook.repository.FriendRepository;
 import com.project.antifakebook.repository.UserRepository;
 import com.project.antifakebook.repository.VerifyTokenRepository;
 import com.project.antifakebook.util.FileUploadUtil;
@@ -23,6 +27,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 
 
+
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -34,8 +39,9 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
-import java.util.Objects;
 
+import java.util.Objects;
+import java.util.Optional;
 
 
 @Service
@@ -47,17 +53,21 @@ public class UserService implements UserDetailsService {
     private AuthenticationManager authenticationManager;
     private JwtService jwtService;
     private VerifyTokenRepository verifyTokenRepository;
+    private FriendRepository friendRepository;
 
     public UserService() {
     }
 
     @Autowired
     public UserService(PasswordEncoder encoder, AuthenticationManager authenticationManage,
-                       JwtService jwtService,VerifyTokenRepository verifyTokenRepository) {
+                       JwtService jwtService,VerifyTokenRepository verifyTokenRepository,
+                       FriendRepository friendRepository
+                       ) {
         this.encoder = encoder;
         this.authenticationManager = authenticationManage;
         this.jwtService = jwtService;
         this.verifyTokenRepository = verifyTokenRepository;
+        this.friendRepository = friendRepository;
     }
 
 
@@ -109,6 +119,8 @@ public class UserService implements UserDetailsService {
             String email = authentication.getName();
             String token = jwtService.generateToken(requestDto.getEmail());
             UserEntity userEntity = findByEmail(email);
+            userEntity.setOnline(true);
+            userRepository.save(userEntity);
             AccountLoginResponseDto responseDto = new AccountLoginResponseDto(
                     userEntity.getId(),
                     userEntity.getName(),
@@ -144,6 +156,12 @@ public class UserService implements UserDetailsService {
     public String uploadAvatarImageFile(Long userId,MultipartFile multipartFile) throws IOException {
         String fileName = "avatar_"+userId+".jpg";
         String uploadDir = "src/main/resources/avatar/";
+        FileUploadUtil.saveFile(uploadDir, fileName, multipartFile);
+        return uploadDir + fileName;
+    }
+    public String uploadCoverImage(Long userId,MultipartFile multipartFile) throws IOException {
+        String fileName = "cover_image_"+userId+".jpg";
+        String uploadDir = "src/main/resources/cover_image/";
         FileUploadUtil.saveFile(uploadDir, fileName, multipartFile);
         return uploadDir + fileName;
     }
@@ -187,7 +205,59 @@ public class UserService implements UserDetailsService {
         }
         return serverResponseDto;
     }
-
-
+    public ServerResponseDto getUserInfo(Long userId,Long currentUserId) {
+        ServerResponseDto serverResponseDto;
+        Integer isFriend = null;
+        int online = 0;
+        Integer coins = null;
+        Optional<UserEntity> userEntity = userRepository.findById(userId);
+        if(userEntity.isPresent()) {
+            Integer listing = friendRepository.countFriendEntitiesByUserId(userId);
+            if(!userId.equals(currentUserId)) {
+                FriendEntity friendEntity = friendRepository.findByUserIdAndFriendId(currentUserId,userId);
+                if(friendEntity != null) {
+                    isFriend = 1;
+                }
+            } else {
+                coins = userRepository.getCoinsOfUser(currentUserId);
+            }
+            if(Boolean.TRUE.equals(userEntity.get().getOnline())) {
+                online = 1;
+            }
+            GetUserInfoResponseDto responseDto = new
+                    GetUserInfoResponseDto(userEntity.get(),listing,isFriend,online,coins);
+            serverResponseDto = new ServerResponseDto(ResponseCase.OK,responseDto);
+        } else {
+            serverResponseDto = new ServerResponseDto(ResponseCase.USER_IS_NOT_VALIDATED);
+        }
+        return serverResponseDto;
+    }
+    public ServerResponseDto setUserInfo
+            (Long userId,SetUserInfoRequestDto requestDto,MultipartFile avatar,MultipartFile coverImage) throws IOException {
+        Optional<UserEntity> userEntity = userRepository.findById(userId);
+        ServerResponseDto serverResponseDto;
+        if(userEntity.isPresent()) {
+            UserEntity currentUser = userEntity.get();
+            currentUser.setName(requestDto.getUsername());
+            currentUser.setDescription(requestDto.getDescription());
+            currentUser.setAvatarLink(uploadAvatarImageFile(userId,avatar));
+            currentUser.setAddress(requestDto.getAddress());
+            currentUser.setCity(requestDto.getCity());
+            currentUser.setCountry(requestDto.getCountry());
+            currentUser.setCoverImage(uploadCoverImage(userId,coverImage));
+            currentUser.setLink(requestDto.getLink());
+            userRepository.save(currentUser);
+            SetUserInfoResponseDto responseDto =
+                    new SetUserInfoResponseDto(currentUser.getAvatarLink(),
+                            currentUser.getCoverImage(),
+                            currentUser.getLink(),
+                            currentUser.getCity(),
+                            currentUser.getCountry());
+            serverResponseDto = new ServerResponseDto(ResponseCase.OK,responseDto);
+        } else {
+            serverResponseDto = new ServerResponseDto(ResponseCase.USER_IS_NOT_VALIDATED);
+        }
+        return serverResponseDto;
+    }
 }
 
