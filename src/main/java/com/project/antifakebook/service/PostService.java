@@ -405,5 +405,53 @@ public class PostService {
         }
         return new ServerResponseDto(ResponseCase.OK,responseDtos);
     }
-
+    public GetSinglePostAuthorResponseDto getAuthorOfPost(Long userId) {
+        GetSinglePostAuthorResponseDto authorResponse = null;
+        Optional<UserEntity> author = userRepository.findById(userId);
+        if(author.isPresent()) {
+            UserEntity authorEntity = author.get();
+            authorResponse =
+                    new GetSinglePostAuthorResponseDto
+                            (authorEntity.getId(),authorEntity.getName(),authorEntity.getAvatarLink());
+        }
+        return authorResponse;
+    }
+    public ServerResponseDto getListPosts(Long currentUserId,GetListPostsRequestDto requestDto) {
+        GetListPostsResponseDto responseDto = new GetListPostsResponseDto();
+        List<GetSinglePostResponseDto> singlePostList = new ArrayList<>();
+        boolean inCampaign = requestDto.getInCampaign() == 1;
+        List<Long> postIds = postRepository
+                .getListIdsOfPost(inCampaign,
+                        requestDto.getCampaignId(),
+                        requestDto.getLatitude(),
+                        requestDto.getLongitude(),
+                        requestDto.getLastId(),
+                        requestDto.getIndex(),
+                        requestDto.getCount());
+        if(!postIds.isEmpty()) {
+           List<PostEntity> postEntities = postRepository.findByIdIn(postIds);
+           for(PostEntity postEntity : postEntities) {
+                GetSinglePostResponseDto singlePost = new GetSinglePostResponseDto();
+                singlePost.setId(postEntity.getId());
+                singlePost.setName(postEntity.getName());
+                singlePost.setImage(getImageOfPostDto(postEntity.getId()));
+                singlePost.setVideo(getVideoOfPostDto(postEntity.getId()));
+                singlePost.setDescribed(postEntity.getDescribed());
+                singlePost.setCreated(postEntity.getCreatedDate());
+                singlePost.setFeel(postReactRepository.totalFeelOfPost(postEntity.getId()));
+                singlePost.setCommentMark(postRateRepository.totalMarkCommentOfPost(postEntity.getId()));
+                singlePost.setIsFelt(isRate(currentUserId, postEntity.getId()));
+                singlePost.setIsBlocked(isAuthorBlockCurrentUser(currentUserId,postEntity.getUserId()));
+                singlePost.setCanEdit(canEdit(currentUserId,postEntity));
+                singlePost.setBanned(postEntity.getBannedStatus());
+                singlePost.setStatus(postEntity.getStatus().name());
+                singlePost.setAuthor(getAuthorOfPost(postEntity.getUserId()));
+                singlePostList.add(singlePost);
+           }
+        }
+        responseDto.setPost(singlePostList);
+        responseDto.setNewItems(postIds.size());
+        responseDto.setLastId(requestDto.getLastId());
+        return new ServerResponseDto(ResponseCase.OK,responseDto);
+    }
 }

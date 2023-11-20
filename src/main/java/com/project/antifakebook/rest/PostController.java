@@ -64,5 +64,10 @@ public class PostController {
                                     @RequestBody SearchPostsRequestDto requestDto) {
         return postService.searchPosts(requestDto, currentUser.getUserId());
     }
+    @PostMapping("get-list-posts")
+    public ServerResponseDto getListPost(@AuthenticationPrincipal CustomUserDetails currentUSer,
+                                         @RequestBody GetListPostsRequestDto requestDto) {
+        return postService.getListPosts(currentUSer.getUserId(), requestDto);
+    }
 }
 

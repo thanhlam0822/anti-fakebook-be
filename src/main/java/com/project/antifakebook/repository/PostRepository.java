@@ -19,4 +19,19 @@ public interface PostRepository extends JpaRepository<PostEntity,Long> {
     List<PostEntity> searchPosts(@Param("keyword") String keyword,
                                  @Param("index") Integer index,
                                  @Param("count") Integer count);
+    @Query(value ="with posts as (\n" +
+            "    select id, rank() over (order by created_date desc ) as post_index from post p\n" +
+            "    where p.is_discount = :inCampaign\n" +
+            "      and p.campaign_id = :campaignId\n" +
+            "      and (6371 * acos(cos(radians(:latitude)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:longitude)) + sin(radians(:latitude)) * sin(radians(latitude)))) <= 10\n" +
+            ")\n" +
+            "select * from posts where post_index >= :index and id >= :lastId limit :count" ,nativeQuery = true)
+    List<Long> getListIdsOfPost(@Param("inCampaign") Boolean inCampaign,
+                                @Param("campaignId") Long campaignId,
+                                @Param("latitude") Double latitude,
+                                @Param("longitude") Double longitude,
+                                @Param("lastId") Long lastId,
+                                @Param("index") Integer index,
+                                @Param("count") Integer count);
+    List<PostEntity> findByIdIn(List<Long> postIds);
 }

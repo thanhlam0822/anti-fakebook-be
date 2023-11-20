@@ -33,6 +33,10 @@ public class PostEntity {
     private Date modifiedDate;
     private Date createdDate;
     private Boolean isOldVersion;
+    private Long campaignId;
+    private Double latitude;
+    private Double longitude;
+    private Boolean isDiscount;
     public PostEntity(SavePostRequestDto requestDto) {
         this.userId = requestDto.getCurrentUserId();
         this.described = requestDto.getDescribed();
