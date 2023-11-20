@@ -416,18 +416,31 @@ public class PostService {
         }
         return authorResponse;
     }
-    public ServerResponseDto getListPosts(Long currentUserId,GetListPostsRequestDto requestDto) {
+
+    public ServerResponseDto getListPosts(Long currentUserId,GetListPostsRequestDto requestDto,boolean isGetVideo) {
         GetListPostsResponseDto responseDto = new GetListPostsResponseDto();
         List<GetSinglePostResponseDto> singlePostList = new ArrayList<>();
         boolean inCampaign = requestDto.getInCampaign() == 1;
-        List<Long> postIds = postRepository
-                .getListIdsOfPost(inCampaign,
-                        requestDto.getCampaignId(),
-                        requestDto.getLatitude(),
-                        requestDto.getLongitude(),
-                        requestDto.getLastId(),
-                        requestDto.getIndex(),
-                        requestDto.getCount());
+        List<Long> postIds;
+        if(isGetVideo) {
+            postIds = postRepository
+                    .getIdsOfVideos(inCampaign,
+                            requestDto.getCampaignId(),
+                            requestDto.getLatitude(),
+                            requestDto.getLongitude(),
+                            requestDto.getLastId(),
+                            requestDto.getIndex(),
+                            requestDto.getCount());
+        } else {
+            postIds = postRepository
+                    .getListIdsOfPost(inCampaign,
+                            requestDto.getCampaignId(),
+                            requestDto.getLatitude(),
+                            requestDto.getLongitude(),
+                            requestDto.getLastId(),
+                            requestDto.getIndex(),
+                            requestDto.getCount());
+        }
         if(!postIds.isEmpty()) {
            List<PostEntity> postEntities = postRepository.findByIdIn(postIds);
            for(PostEntity postEntity : postEntities) {
@@ -454,4 +467,5 @@ public class PostService {
         responseDto.setLastId(requestDto.getLastId());
         return new ServerResponseDto(ResponseCase.OK,responseDto);
     }
+
 }
