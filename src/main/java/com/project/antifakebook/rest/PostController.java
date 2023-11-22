@@ -67,7 +67,12 @@ public class PostController {
     @PostMapping("get-list-posts")
     public ServerResponseDto getListPost(@AuthenticationPrincipal CustomUserDetails currentUSer,
                                          @RequestBody GetListPostsRequestDto requestDto) {
-        return postService.getListPosts(currentUSer.getUserId(), requestDto);
+        return postService.getListPosts(currentUSer.getUserId(), requestDto,false);
+    }
+    @PostMapping("get-list-videos")
+    public ServerResponseDto getListVideos(@AuthenticationPrincipal CustomUserDetails currentUSer,
+                                         @RequestBody GetListPostsRequestDto requestDto) {
+        return postService.getListPosts(currentUSer.getUserId(), requestDto,true);
     }
 }
 
