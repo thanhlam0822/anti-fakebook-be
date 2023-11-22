@@ -21,7 +21,7 @@ public class MessageEntity {
     private String content;
     private Long fromUserId;
     private Long toUserId;
-    private Long conservationId;
+    private Long conversationId;
     private Integer isRead;
     private Date createdDate;
 }

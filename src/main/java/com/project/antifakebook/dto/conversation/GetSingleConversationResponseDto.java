@@ -6,10 +6,12 @@ import lombok.Setter;
 
 import java.util.List;
 
+
 @Getter
 @Setter
 @NoArgsConstructor
 public class GetSingleConversationResponseDto {
     private List<GetSingleConversationResponseDto2> conversation;
-    private Boolean isBlock;
+    private Integer isBlock;
 }
+

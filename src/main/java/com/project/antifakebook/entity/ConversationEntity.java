@@ -13,8 +13,8 @@ import java.util.Date;
 @Getter
 @Setter
 @NoArgsConstructor
-@Entity(name = "conservation")
-public class ConservationEntity {
+@Entity(name = "conversation")
+public class ConversationEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

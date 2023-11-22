@@ -7,8 +7,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class GetSenderDto extends GetPartnerDto {
-    public GetSenderDto(Long id, String username, String avatar) {
-        super(id, username, avatar);
-    }
+public class DeleteConversationRequestDto {
+    private Long conversationId;
 }
