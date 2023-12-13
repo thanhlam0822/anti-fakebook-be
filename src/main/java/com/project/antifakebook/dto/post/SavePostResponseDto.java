@@ -9,13 +9,13 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class SavePostResponseDto {
-    private Long id;
+    private String id;
     private String url;
-    private Integer coins;
+    private String coins;
 
     public SavePostResponseDto(Long id, String url, Integer coins) {
-        this.id = id;
+        this.id = id.toString();
         this.url = url;
-        this.coins = coins;
+        this.coins = coins.toString();
     }
 }

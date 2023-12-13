@@ -2,6 +2,7 @@ package com.project.antifakebook.service;
 
 import com.project.antifakebook.dto.ResponseCase;
 import com.project.antifakebook.dto.ServerResponseDto;
+import com.project.antifakebook.dto.verify_code.CheckVerifyCodeResponseDto;
 import com.project.antifakebook.entity.UserEntity;
 import com.project.antifakebook.entity.VerificationTokenEntity;
 
@@ -12,7 +13,7 @@ import com.project.antifakebook.repository.UserRepository;
 import com.project.antifakebook.repository.VerifyTokenRepository;
 
 
-import com.project.antifakebook.util.ValidateRegisterAccountRequestUtils;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -82,6 +83,7 @@ public class VerifyTokenService {
         VerificationTokenEntity tokenEntity = repository.getVerifyTokenByEmail(email);
         UserEntity userEntity = userRepository.findUserByTokenAndEmail(token, email);
         if (userEntity != null) {
+
             return activeUser(tokenEntity, userEntity);
         } else {
             return new ServerResponseDto(ResponseCase.USER_IS_NOT_VALIDATED);
@@ -93,7 +95,9 @@ public class VerifyTokenService {
             userEntity.setActiveStatus(ActiveStatusCode.ACTIVE.getCode());
             userRepository.save(userEntity);
             repository.deleteById(tokenEntity.getId());
-            return new ServerResponseDto(ResponseCase.OK);
+            CheckVerifyCodeResponseDto responseDto = new CheckVerifyCodeResponseDto
+                    (userEntity.getId().toString(),userEntity.getActiveStatus().toString());
+            return new ServerResponseDto(ResponseCase.OK,responseDto);
         } else {
             return new ServerResponseDto(ResponseCase.INVALID_TOKEN);
         }

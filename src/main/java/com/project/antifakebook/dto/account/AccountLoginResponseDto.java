@@ -6,14 +6,14 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AccountLoginResponseDto {
-    private Long id;
+    private String id;
     private String username;
     private String token;
     private String avatarLink;
-    private Integer activeStatus;
-    private Integer coins;
+    private String activeStatus;
+    private String coins;
 
-    public AccountLoginResponseDto(Long id, String username, String token, String avatarLink, Integer activeStatus, Integer coins) {
+    public AccountLoginResponseDto(String id, String username, String token, String avatarLink, String activeStatus, String coins) {
         this.id = id;
         this.username = username;
         this.token = token;

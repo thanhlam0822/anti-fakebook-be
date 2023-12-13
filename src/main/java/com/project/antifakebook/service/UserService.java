@@ -122,12 +122,12 @@ public class UserService implements UserDetailsService {
             userEntity.setOnline(true);
             userRepository.save(userEntity);
             AccountLoginResponseDto responseDto = new AccountLoginResponseDto(
-                    userEntity.getId(),
+                    userEntity.getId().toString(),
                     userEntity.getName(),
                     token,
                     userEntity.getAvatarLink(),
-                    userEntity.getActiveStatus(),
-                    userEntity.getCoins());
+                    userEntity.getActiveStatus().toString(),
+                    userEntity.getCoins().toString());
             return new ServerResponseDto(ResponseCase.OK, responseDto);
 
         } else {
