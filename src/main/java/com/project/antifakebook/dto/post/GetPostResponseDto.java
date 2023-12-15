@@ -8,34 +8,34 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 
-import java.util.Date;
+
 import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
 public class GetPostResponseDto {
-    private Long id;
+    private String id;
     private String name;
     private String described;
-    private Date createdDate;
-    private Date modifiedDate;
-    private Integer kudos;
-    private Integer disappointed;
-    private Integer fakes;
-    private Integer trusts;
-    private Boolean isRate;
-    private Boolean isMark;
+    private String createdDate;
+    private String modifiedDate;
+    private String kudos;
+    private String disappointed;
+    private String fakes;
+    private String trusts;
+    private String isRate;
+    private String isMark;
     private List<GetPostImageResponseDto> images;
     private List<GetPostVideoResponseDto> videos;
     private GetPostAuthorResponseDto author;
     private List<GetCategoryOfPostDto> category;
-    private PostState state;
-    private Boolean isBlock;
-    private Boolean canEdit;
+    private String state;
+    private String isBlock;
+    private String canEdit;
     private String bannedStatus;
-    private Boolean canMark;
-    private Boolean canRate;
+    private String canMark;
+    private String canRate;
     public GetPostResponseDto(PostEntity postEntity,Integer kudos,Integer disappointed,Integer fakes,Integer trusts,
                               Boolean isRate,Boolean isMark,
                               List<GetPostImageResponseDto> images,
@@ -45,29 +45,37 @@ public class GetPostResponseDto {
                               PostState state,
                               Boolean isBlock ,Boolean canEdit,
                               String bannedStatus,Boolean canMark,Boolean canRate) {
-        this.id = postEntity.getId();
+        this.id = postEntity.getId().toString();
         this.name = postEntity.getName();
         this.described = postEntity.getDescribed();
-        this.createdDate = postEntity.getCreatedDate();
-        this.modifiedDate = postEntity.getModifiedDate();
-        this.kudos = kudos;
-        this.disappointed = disappointed;
-        this.fakes = fakes;
-        this.trusts = trusts;
-        this.isRate = isRate;
-        this.isMark = isMark;
+        if(createdDate != null) {
+            this.createdDate = postEntity.getCreatedDate().toString();
+        } else {
+            this.createdDate = "";
+        }
+        if(modifiedDate != null) {
+            this.modifiedDate = postEntity.getModifiedDate().toString();
+        } else {
+            this.modifiedDate = "";
+        }
+        this.kudos = kudos.toString();
+        this.disappointed = disappointed.toString();
+        this.fakes = fakes.toString();
+        this.trusts = trusts.toString();
+        this.isRate = isRate.toString();
+        this.isMark = isMark.toString();
         this.images = images;
         this.videos = videos;
         this.author = authorResponseDto;
         this.category = categoryOfPostDtos;
-        this.state = state;
-        this.isBlock = isBlock;
-        this.canEdit = canEdit;
+        this.state = state.toString();
+        this.isBlock = isBlock.toString();
+        this.canEdit = canEdit.toString();
         this.bannedStatus = bannedStatus;
-        this.canMark = canMark;
-        this.canRate = canRate;
+        this.canMark = canMark.toString();
+        this.canRate = canRate.toString();
     }
     public GetPostResponseDto(Boolean isBlock) {
-        this.isBlock = isBlock;
+        this.isBlock = isBlock.toString();
     }
 }

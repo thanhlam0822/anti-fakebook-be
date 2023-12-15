@@ -9,10 +9,10 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class GetCategoryOfPostDto {
-    private Long id;
+    private String id;
     private String name;
     public GetCategoryOfPostDto(CategoryEntity entity) {
-        this.id = entity.getId();
+        this.id = entity.getId().toString();
         this.name = entity.getName();
     }
 }

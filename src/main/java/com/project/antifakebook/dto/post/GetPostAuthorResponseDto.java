@@ -10,17 +10,17 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class GetPostAuthorResponseDto {
-    private Long id;
+    private String id;
     private String name;
     private String avatar;
-    private Integer coins;
-    private List<Long> oldVersionOfPostId;
+    private String coins;
+    private List<String> oldVersionOfPostId;
 
-    public GetPostAuthorResponseDto(Long id, String name, String avatar, Integer coins, List<Long> oldVersionOfPostId) {
-        this.id = id;
+    public GetPostAuthorResponseDto(Long id, String name, String avatar, Integer coins, List<String> oldVersionOfPostId) {
+        this.id = id.toString();
         this.name = name;
         this.avatar = avatar;
-        this.coins = coins;
+        this.coins = coins.toString();
         this.oldVersionOfPostId = oldVersionOfPostId;
     }
 }

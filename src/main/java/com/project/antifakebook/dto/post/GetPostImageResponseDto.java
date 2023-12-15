@@ -8,10 +8,10 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class GetPostImageResponseDto {
-    private Long id;
+    private String id;
     private String url;
     public GetPostImageResponseDto(Long id,String url) {
-        this.id = id;
+        this.id = id.toString();
         this.url = url;
     }
 }

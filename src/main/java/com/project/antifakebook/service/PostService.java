@@ -189,11 +189,15 @@ public class PostService {
     public GetPostAuthorResponseDto getAuthorInformationOfPost(Long userId,Long postId) {
         UserEntity user = userRepository.findById(userId).orElse(null);
         List<Long> oldVersionIds = oldVersionOfPostRepository.getOldVersionOfCurrentPost(postId);
+        List<String> oldVersionIdsString = new ArrayList<>();
+        for(Long id : oldVersionIds) {
+            oldVersionIdsString.add(id.toString());
+        }
         return new GetPostAuthorResponseDto(userId,
                 Objects.requireNonNull(user).getName(),
                 user.getAvatarLink(),
                 user.getCoins(),
-                oldVersionIds);
+                oldVersionIdsString);
     }
     public List<GetCategoryOfPostDto> getCategoryOfPost(Long postId) {
         List<GetCategoryOfPostDto> categoryOfPostDtos = new ArrayList<>();
