@@ -8,11 +8,11 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class GetPostFeelResponseDto {
-    private Integer disappointed;
-    private Integer kudos;
+    private String disappointed;
+    private String kudos;
 
     public GetPostFeelResponseDto(Integer disappointed, Integer kudos) {
-        this.disappointed = disappointed;
-        this.kudos = kudos;
+        this.disappointed = disappointed.toString();
+        this.kudos = kudos.toString();
     }
 }

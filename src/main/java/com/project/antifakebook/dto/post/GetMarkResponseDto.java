@@ -10,12 +10,12 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class GetMarkResponseDto {
-    private Long id;
+    private String id;
     private String markContent;
     private String typeOfMark;
     private MarkPosterResponseDto poster;
     private List<GetMarkCommentResponseDto> comments;
-    private Boolean isBlock;
+    private String isBlock;
 
 
 }

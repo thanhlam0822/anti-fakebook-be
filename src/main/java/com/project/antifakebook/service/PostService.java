@@ -225,25 +225,6 @@ public class PostService {
     public Boolean canRate(Long userId,Long postId) {
         return !isRate(userId,postId);
     }
-//    public ServerResponseDto editPost() {
-//        return null;
-//    }
-//    public void editPostImage(Long postId,MultipartFile[] files,List<Integer> imageSort ) {
-//        AtomicInteger i = new AtomicInteger();
-//        List<PostImageEntity> fileEntities = new ArrayList<>();
-//        Arrays.asList(files).forEach(file -> {
-//            String url = uploadDirForPostImage + file.getOriginalFilename();
-//            PostImageEntity fileEntity = new PostImageEntity(file.getOriginalFilename(), postId,url, imageSort.get(i.get()));
-//            fileEntities.add(fileEntity);
-//            i.getAndIncrement();
-//            try {
-//                FileUploadUtil.saveFile(uploadDirForPostImage, file.getOriginalFilename(), file);
-//            } catch (IOException e) {
-//                throw new RuntimeException(e);
-//            }
-//        });
-//        postImageRepository.saveAll(fileEntities);
-//    }
     public ServerResponseDto deletePost(Long postId,Long userId) {
         ServerResponseDto serverResponseDto;
         Optional<PostEntity> postEntity = postRepository.findById(postId);
@@ -251,7 +232,8 @@ public class PostService {
             if(isUserHasEnoughCoins(userId)) {
                 postRepository.deleteById(postId);
                 userRepository.minusUserFees(userId);
-                serverResponseDto = new ServerResponseDto(ResponseCase.OK);
+                DeletePostResponseDto deletePostResponseDto = new DeletePostResponseDto(userRepository.getCoinsOfUser(userId).toString());
+                serverResponseDto = new ServerResponseDto(ResponseCase.OK,deletePostResponseDto);
             } else {
                 serverResponseDto = new ServerResponseDto(ResponseCase.NOT_ENOUGH_COINS);
             }
@@ -314,10 +296,10 @@ public class PostService {
                 postRateRepository.findByPostId(requestDto.getPostId(),requestDto.getIndex(),requestDto.getCount());
         for(GetRateResponseDto entity : rateEntities) {
             responseDto = new GetMarkResponseDto();
-            responseDto.setId(entity.getId());
+            responseDto.setId(entity.getId().toString());
             responseDto.setMarkContent(entity.getMarkContent());
             responseDto.setTypeOfMark(entity.getTypeOfMark());
-            responseDto.setIsBlock(isAuthorBlockCurrentUser(currentUserId,entity.getUserId()));
+            responseDto.setIsBlock(isAuthorBlockCurrentUser(currentUserId,entity.getUserId()).toString());
             UserEntity user = userRepository.findById(entity.getUserId()).orElse(null);
             assert user != null;
             MarkPosterResponseDto poster = new MarkPosterResponseDto(user.getId(),user.getName(),user.getAvatarLink());
@@ -327,7 +309,7 @@ public class PostService {
             for(GetRateResponseDto commentEntity: comments) {
                 GetMarkCommentResponseDto commentResponseDto = new GetMarkCommentResponseDto();
                 commentResponseDto.setContent(commentEntity.getMarkContent());
-                commentResponseDto.setCreatedDate(commentEntity.getCreatedDate());
+                commentResponseDto.setCreatedDate(commentEntity.getCreatedDate().toString());
                 UserEntity userEntity = userRepository.findById(commentEntity.getUserId()).orElse(null);
                 assert userEntity != null;
                 MarkPosterResponseDto poster2 = new MarkPosterResponseDto(userEntity.getId(),userEntity.getName(),userEntity.getAvatarLink());
@@ -356,7 +338,7 @@ public class PostService {
                 rateEntity.setRateType(null);
             }
             postRateRepository.save(rateEntity);
-            responseDto.setId(rateEntity.getId());
+            responseDto.setId(rateEntity.getId().toString());
             responseDto.setMarkContent(rateEntity.getContent());
             if(rateEntity.getRateType() != null) {
                 responseDto.setTypeOfMark(rateEntity.getRateType().toString());
@@ -373,7 +355,7 @@ public class PostService {
             for(GetRateResponseDto comment : comments) {
                 GetMarkCommentResponseDto commentResponseDto = new GetMarkCommentResponseDto();
                 commentResponseDto.setContent(comment.getMarkContent());
-                commentResponseDto.setCreatedDate(comment.getCreatedDate());
+                commentResponseDto.setCreatedDate(comment.getCreatedDate().toString());
                 UserEntity userComment = userRepository.findById(comment.getUserId()).orElse(null);
                 assert userComment != null;
                 MarkPosterResponseDto poster2 = new MarkPosterResponseDto(

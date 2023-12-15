@@ -13,6 +13,6 @@ import java.util.Date;
 @NoArgsConstructor
 public class GetMarkCommentResponseDto {
     private String content;
-    private Date createdDate;
+    private String createdDate;
     private MarkPosterResponseDto poster;
 }

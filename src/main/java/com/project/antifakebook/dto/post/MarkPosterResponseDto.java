@@ -8,11 +8,11 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class MarkPosterResponseDto {
-    private Long id;
+    private String id;
     private String name;
     private String avatar;
     public MarkPosterResponseDto(Long id,String name,String avatar) {
-        this.id = id;
+        this.id = id.toString();
         this.name = name;
         this.avatar = avatar;
     }
