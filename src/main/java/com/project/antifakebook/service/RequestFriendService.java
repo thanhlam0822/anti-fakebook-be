@@ -44,17 +44,17 @@ public class RequestFriendService {
                 .getRequestFriendByUserId(userId, requestDto.getIndex(), requestDto.getCount());
         for(RequestFriendEntity requestFriend : requests) {
             UserFriendResponseDto userFriendResponseDto = new UserFriendResponseDto();
-            userFriendResponseDto.setId(requestFriend.getId());
+            userFriendResponseDto.setId(requestFriend.getId().toString());
             UserEntity userEntity = userRepository.findById(requestFriend.getFriendId()).orElse(null);
             assert userEntity != null;
             userFriendResponseDto.setUsername(userEntity.getName());
             userFriendResponseDto.setAvatar(userEntity.getAvatarLink());
-            userFriendResponseDto.setSameFriends(friendRepository.getSameFriendsAmount(userId, requestFriend.getFriendId()));
-            userFriendResponseDto.setCreated(requestFriend.getCreatedDate());
+            userFriendResponseDto.setSameFriends(friendRepository.getSameFriendsAmount(userId, requestFriend.getFriendId()).toString());
+            userFriendResponseDto.setCreated(requestFriend.getCreatedDate().toString());
             userFriendResponseDtos.add(userFriendResponseDto);
         }
         responseDto.setRequest(userFriendResponseDtos);
-        responseDto.setTotal(requestFriendRepository.getTotalRequestOfUser(userId));
+        responseDto.setTotal(requestFriendRepository.getTotalRequestOfUser(userId).toString());
         return new ServerResponseDto(ResponseCase.OK,responseDto);
     }
     public ServerResponseDto setAcceptFriend(Long currentUserId, SetAcceptFriendRequestDto requestDto) {
@@ -97,10 +97,10 @@ public class RequestFriendService {
             UserEntity userEntity = userRepository.findById(suggestedFriend.getFriendId()).orElse(null);
             assert userEntity != null;
             ListFriendSuggestedResponseDto dto = new ListFriendSuggestedResponseDto();
-            dto.setUserId(userEntity.getId());
+            dto.setUserId(userEntity.getId().toString());
             dto.setUsername(userEntity.getName());
             dto.setAvatar(userEntity.getAvatarLink());
-            dto.setSameFriends(friendRepository.getSameFriendsAmount(currentUserId,suggestedFriend.getFriendId()));
+            dto.setSameFriends(friendRepository.getSameFriendsAmount(currentUserId,suggestedFriend.getFriendId()).toString());
             list.add(dto);
         }
         responseDto.setListUsers(list);
@@ -122,7 +122,7 @@ public class RequestFriendService {
                 RequestFriendEntity requestFriendEntity = new RequestFriendEntity(currentUserId,userId);
                 requestFriendRepository.save(requestFriendEntity);
                 SetRequestFriendResponseDto responseDto = new SetRequestFriendResponseDto();
-                responseDto.setRequestedFriends(requestFriendRepository.countRequestFriendNumber(currentUserId));
+                responseDto.setRequestedFriends(requestFriendRepository.countRequestFriendNumber(currentUserId).toString());
                 serverResponseDto = new ServerResponseDto(ResponseCase.OK,responseDto);
             }
         } else {

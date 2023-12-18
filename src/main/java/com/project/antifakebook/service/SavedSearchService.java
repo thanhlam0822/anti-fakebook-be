@@ -4,10 +4,12 @@ import com.project.antifakebook.dto.ResponseCase;
 import com.project.antifakebook.dto.ServerResponseDto;
 import com.project.antifakebook.dto.saved_search.DelSavedSearchRequestDto;
 import com.project.antifakebook.dto.saved_search.GetSavedSearchRequestDto;
+import com.project.antifakebook.dto.saved_search.GetSavedSearchResponseDto;
 import com.project.antifakebook.entity.SavedSearchEntity;
 import com.project.antifakebook.repository.*;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,7 +22,12 @@ public class SavedSearchService {
     public ServerResponseDto getSavedSearch(GetSavedSearchRequestDto requestDto, Long userId) {
         List<SavedSearchEntity> searchEntities = savedSearchRepository
                 .findByUserId(userId,requestDto.getIndex(),requestDto.getCount());
-        return new ServerResponseDto(ResponseCase.OK,searchEntities);
+        List<GetSavedSearchResponseDto> responseDtos = new ArrayList<>();
+        for(SavedSearchEntity entity : searchEntities) {
+            GetSavedSearchResponseDto responseDto = new GetSavedSearchResponseDto(entity);
+            responseDtos.add(responseDto);
+        }
+        return new ServerResponseDto(ResponseCase.OK,responseDtos);
     }
     public ServerResponseDto delSavedSearch(DelSavedSearchRequestDto requestDto) {
         ServerResponseDto serverResponseDto;

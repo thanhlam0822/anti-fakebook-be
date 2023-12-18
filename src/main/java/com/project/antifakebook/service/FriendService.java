@@ -33,16 +33,16 @@ public class FriendService {
         for(FriendEntity friendEntity : friendEntities) {
             GetUserFriendResponseDto responseDto = new GetUserFriendResponseDto();
             UserFriendResponseDto userFriendResponseDto = new UserFriendResponseDto();
-            userFriendResponseDto.setId(friendEntity.getFriendId());
+            userFriendResponseDto.setId(friendEntity.getFriendId().toString());
             UserEntity userEntity = userRepository.findById(friendEntity.getFriendId()).orElse(null);
             assert userEntity != null;
             userFriendResponseDto.setUsername(userEntity.getName());
             userFriendResponseDto.setAvatar(userEntity.getAvatarLink());
             userFriendResponseDto.setSameFriends(friendRepository.
-                        getSameFriendsAmount(requestDto.getUserId(),friendEntity.getFriendId()));
-            userFriendResponseDto.setCreated(friendEntity.getCreatedDate());
+                        getSameFriendsAmount(requestDto.getUserId(),friendEntity.getFriendId()).toString());
+            userFriendResponseDto.setCreated(friendEntity.getCreatedDate().toString());
             responseDto.setFriends(userFriendResponseDto);
-            responseDto.setTotal(friendRepository.countFriendEntitiesByUserId(userEntity.getId()));
+            responseDto.setTotal(friendRepository.countFriendEntitiesByUserId(userEntity.getId()).toString());
             responseDtos.add(responseDto);
         }
 

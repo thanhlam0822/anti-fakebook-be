@@ -11,6 +11,6 @@ import java.util.List;
 @NoArgsConstructor
 public class GetListPostsResponseDto {
     private List<GetSinglePostResponseDto> post;
-    private Integer newItems;
-    private Long lastId;
+    private String newItems;
+    private String lastId;
 }

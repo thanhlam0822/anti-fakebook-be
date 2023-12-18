@@ -10,13 +10,13 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class SearchPostsResponseDto {
-    private Long id;
+    private String id;
     private String name;
     private List<GetPostImageResponseDto> image;
     private List<GetPostVideoResponseDto> video;
-    private Integer feel;
-    private Integer markComment;
-    private Boolean isFelt;
+    private String feel;
+    private String markComment;
+    private String isFelt;
     private SearchPostsAuthorResponseDto author;
     private String described;
 
@@ -29,13 +29,13 @@ public class SearchPostsResponseDto {
                                   Boolean isFelt,
                                   SearchPostsAuthorResponseDto author,
                                   String described) {
-        this.id = id;
+        this.id = id.toString();
         this.name = name;
         this.image = image;
         this.video = video;
-        this.feel = feel;
-        this.markComment = markComment;
-        this.isFelt = isFelt;
+        this.feel = feel.toString();
+        this.markComment = markComment.toString();
+        this.isFelt = isFelt.toString();
         this.author = author;
         this.described = described;
     }

@@ -8,5 +8,5 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class SetRequestFriendResponseDto {
-    private Integer requestedFriends;
+    private String requestedFriends;
 }

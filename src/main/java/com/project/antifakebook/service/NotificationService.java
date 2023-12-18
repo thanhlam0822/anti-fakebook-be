@@ -2,14 +2,12 @@ package com.project.antifakebook.service;
 
 import com.project.antifakebook.dto.ResponseCase;
 import com.project.antifakebook.dto.ServerResponseDto;
-import com.project.antifakebook.dto.notifications.GetFullNotificationResponseDto;
-import com.project.antifakebook.dto.notifications.GetNotificationRequestDto;
-import com.project.antifakebook.dto.notifications.GetNotificationResponseDto;
-import com.project.antifakebook.dto.notifications.SetReadNotificationResponseDto;
+import com.project.antifakebook.dto.notifications.*;
 import com.project.antifakebook.entity.NotificationEntity;
 import com.project.antifakebook.repository.NotificationRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -23,10 +21,15 @@ public class NotificationService {
     public ServerResponseDto getNotification(Long userId,GetNotificationRequestDto requestDto) {
         List<GetNotificationResponseDto> notifications =
                 notificationRepository.getNotifications(userId,requestDto.getIndex(), requestDto.getCount());
+        List<GetNotificationResponseStringDto> responseDtos = new ArrayList<>();
+        for(GetNotificationResponseDto dto : notifications) {
+            GetNotificationResponseStringDto responseDto = new GetNotificationResponseStringDto(dto);
+            responseDtos.add(responseDto);
+        }
         GetFullNotificationResponseDto responseDto = new GetFullNotificationResponseDto();
-        responseDto.setNotifications(notifications);
-        responseDto.setBadge(notificationRepository.countBadge(userId));
-        responseDto.setLastUpdate(notificationRepository.lastUpdate(userId));
+        responseDto.setNotifications(responseDtos);
+        responseDto.setBadge(notificationRepository.countBadge(userId).toString());
+        responseDto.setLastUpdate(notificationRepository.lastUpdate(userId).toString());
         return new ServerResponseDto(ResponseCase.OK,responseDto);
     }
     public ServerResponseDto setReadNotification(Long notificationId,Long userId) {

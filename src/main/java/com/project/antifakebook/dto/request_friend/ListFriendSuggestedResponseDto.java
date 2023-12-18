@@ -10,8 +10,8 @@ import javax.persistence.criteria.CriteriaBuilder;
 @Getter
 @Setter
 public class ListFriendSuggestedResponseDto {
-    private Long userId;
+    private String userId;
     private String username;
     private String avatar;
-    private Integer sameFriends;
+    private String sameFriends;
 }

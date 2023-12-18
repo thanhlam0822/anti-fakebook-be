@@ -211,7 +211,7 @@ public class PostService {
     public Boolean isAuthorBlockCurrentUser(Long currentUserId,Long userPostId) {
         return blockUserRepository.existsByUserBlockedIdAndUserPostId(currentUserId,userPostId);
     }
-    public boolean canEdit(Long currentUserId,PostEntity postEntity) {
+    public Boolean canEdit(Long currentUserId,PostEntity postEntity) {
         if(postEntity.getBannedStatus() == null) {
             return true;
         } else {
@@ -431,17 +431,17 @@ public class PostService {
            List<PostEntity> postEntities = postRepository.findByIdIn(postIds);
            for(PostEntity postEntity : postEntities) {
                 GetSinglePostResponseDto singlePost = new GetSinglePostResponseDto();
-                singlePost.setId(postEntity.getId());
+                singlePost.setId(postEntity.getId().toString());
                 singlePost.setName(postEntity.getName());
                 singlePost.setImage(getImageOfPostDto(postEntity.getId()));
                 singlePost.setVideo(getVideoOfPostDto(postEntity.getId()));
                 singlePost.setDescribed(postEntity.getDescribed());
-                singlePost.setCreated(postEntity.getCreatedDate());
-                singlePost.setFeel(postReactRepository.totalFeelOfPost(postEntity.getId()));
-                singlePost.setCommentMark(postRateRepository.totalMarkCommentOfPost(postEntity.getId()));
-                singlePost.setIsFelt(isRate(currentUserId, postEntity.getId()));
-                singlePost.setIsBlocked(isAuthorBlockCurrentUser(currentUserId,postEntity.getUserId()));
-                singlePost.setCanEdit(canEdit(currentUserId,postEntity));
+                singlePost.setCreated(postEntity.getCreatedDate().toString());
+                singlePost.setFeel(postReactRepository.totalFeelOfPost(postEntity.getId()).toString());
+                singlePost.setCommentMark(postRateRepository.totalMarkCommentOfPost(postEntity.getId()).toString());
+                singlePost.setIsFelt(isRate(currentUserId, postEntity.getId()).toString());
+                singlePost.setIsBlocked(isAuthorBlockCurrentUser(currentUserId,postEntity.getUserId()).toString());
+                singlePost.setCanEdit(canEdit(currentUserId,postEntity).toString());
                 singlePost.setBanned(postEntity.getBannedStatus());
                 singlePost.setStatus(postEntity.getStatus().name());
                 singlePost.setAuthor(getAuthorOfPost(postEntity.getUserId()));
@@ -449,8 +449,8 @@ public class PostService {
            }
         }
         responseDto.setPost(singlePostList);
-        responseDto.setNewItems(postIds.size());
-        responseDto.setLastId(requestDto.getLastId());
+        responseDto.setNewItems(String.valueOf(postIds.size()));
+        responseDto.setLastId(requestDto.getLastId().toString());
         return new ServerResponseDto(ResponseCase.OK,responseDto);
     }
 

@@ -11,17 +11,17 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class GetSinglePostResponseDto {
-    private Long id;
+    private String id;
     private String name;
     private List<GetPostImageResponseDto> image;
     private List<GetPostVideoResponseDto> video;
     private String described;
-    private Date created;
-    private Integer feel;
-    private Integer commentMark;
-    private Boolean isFelt;
-    private Boolean isBlocked;
-    private Boolean canEdit;
+    private String created;
+    private String feel;
+    private String commentMark;
+    private String isFelt;
+    private String isBlocked;
+    private String canEdit;
     private String banned;
     private String status;
     private GetSinglePostAuthorResponseDto author;

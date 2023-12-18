@@ -12,5 +12,5 @@ import java.util.List;
 @NoArgsConstructor
 public class GetUserFriendResponseDto {
     private UserFriendResponseDto friends;
-    private Integer total;
+    private String total;
 }

@@ -3,11 +3,13 @@ package com.project.antifakebook.service;
 import com.project.antifakebook.dto.ResponseCase;
 import com.project.antifakebook.dto.ServerResponseDto;
 import com.project.antifakebook.dto.block_user.GetListBlockRequestDto;
+import com.project.antifakebook.dto.block_user.GetListBlockResponseMappingDto;
 import com.project.antifakebook.dto.block_user.GetListBlocksResponseDto;
 import com.project.antifakebook.entity.BlockUserEntity;
 import com.project.antifakebook.repository.BlockUserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -21,7 +23,12 @@ public class BlockUserService {
     public ServerResponseDto getListBlocks(Long currentUserId,GetListBlockRequestDto requestDto) {
         List<GetListBlocksResponseDto> list =
                 blockUserRepository.getListBlocks(currentUserId, requestDto.getIndex(), requestDto.getCount());
-        return new ServerResponseDto(ResponseCase.OK,list) ;
+        List<GetListBlockResponseMappingDto> responseDtos = new ArrayList<>();
+        for(GetListBlocksResponseDto dto : list) {
+             GetListBlockResponseMappingDto responseDto = new GetListBlockResponseMappingDto(dto.getId().toString(), dto.getName(), dto.getAvatar());
+             responseDtos.add(responseDto);
+        }
+        return new ServerResponseDto(ResponseCase.OK,responseDtos) ;
     }
     public ServerResponseDto setBlock(Long currentUserId,Long userId,Integer type) {
         if(type == 0) {

@@ -10,11 +10,11 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 public class SetReadNotificationResponseDto {
-    private Integer badge;
-    private Date lastUpdate;
+    private String badge;
+    private String lastUpdate;
 
     public SetReadNotificationResponseDto(Integer badge, Date lastUpdate) {
-        this.badge = badge;
-        this.lastUpdate = lastUpdate;
+        this.badge = badge.toString();
+        this.lastUpdate = lastUpdate.toString();
     }
 }

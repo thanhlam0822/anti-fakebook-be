@@ -11,5 +11,5 @@ import java.util.List;
 @NoArgsConstructor
 public class GetFriendRequestResponseDto {
     private List<UserFriendResponseDto> request;
-    private Integer total;
+    private String total;
 }

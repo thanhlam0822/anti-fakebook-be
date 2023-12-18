@@ -8,12 +8,12 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class GetSinglePostAuthorResponseDto {
-    private Long id;
+    private String id;
     private String username;
     private String avatar;
 
     public GetSinglePostAuthorResponseDto(Long id, String username, String avatar) {
-        this.id = id;
+        this.id = id.toString();
         this.username = username;
         this.avatar = avatar;
     }

@@ -10,9 +10,9 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 public class UserFriendResponseDto {
-    private Long id;
+    private String id;
     private String username;
     private String avatar;
-    private Integer sameFriends;
-    private Date created;
+    private String sameFriends;
+    private String created;
 }

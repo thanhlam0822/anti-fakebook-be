@@ -9,29 +9,29 @@ import lombok.Setter;
 @Getter
 @Setter
 public class GetPushSettingsResponseDto {
-    private Integer likeComment;
-    private Integer fromFriends;
-    private Integer requestedFriend;
-    private Integer suggestedFriend;
-    private Integer birthday;
-    private Integer video;
-    private Integer report;
-    private Integer soundOn;
-    private Integer notificationOn;
-    private Integer vibrantOn;
-    private Integer ledOn;
+    private String likeComment;
+    private String fromFriends;
+    private String requestedFriend;
+    private String suggestedFriend;
+    private String birthday;
+    private String video;
+    private String report;
+    private String soundOn;
+    private String notificationOn;
+    private String vibrantOn;
+    private String ledOn;
 
     public GetPushSettingsResponseDto(NotificationSettingsEntity entity) {
-        this.likeComment = entity.getLikeComment();
-        this.fromFriends = entity.getFromFriends();
-        this.requestedFriend = entity.getRequestedFriend();
-        this.suggestedFriend = entity.getSuggestedFriend();
-        this.birthday = entity.getBirthday();
-        this.video = entity.getVideo();
-        this.report = entity.getReport();
-        this.soundOn = entity.getSoundOn();
-        this.notificationOn = entity.getNotificationOn();
-        this.vibrantOn = entity.getVibrantOn();
-        this.ledOn = entity.getLedOn();
+        this.likeComment = entity.getLikeComment().toString();
+        this.fromFriends = entity.getFromFriends().toString();
+        this.requestedFriend = entity.getRequestedFriend().toString();
+        this.suggestedFriend = entity.getSuggestedFriend().toString();
+        this.birthday = entity.getBirthday().toString();
+        this.video = entity.getVideo().toString();
+        this.report = entity.getReport().toString();
+        this.soundOn = entity.getSoundOn().toString();
+        this.notificationOn = entity.getNotificationOn().toString();
+        this.vibrantOn = entity.getVibrantOn().toString();
+        this.ledOn = entity.getLedOn().toString();
     }
 }
