@@ -11,7 +11,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class GetUserInfoResponseDto {
-    private Long id;
+    private String id;
     private String username;
     private String description;
     private String avatar;
@@ -20,16 +20,16 @@ public class GetUserInfoResponseDto {
     private String address;
     private String city;
     private String country;
-    private Integer listing;
-    private Integer isFriend;
-    private Integer online;
-    private Integer coins;
+    private String listing;
+    private String isFriend;
+    private String online;
+    private String coins;
     public GetUserInfoResponseDto(UserEntity userEntity,
                                   Integer listing,
                                   Integer isFriend,
                                   Integer online,
                                   Integer coins) {
-        this.id = userEntity.getId();
+        this.id = userEntity.getId().toString();
         this.username = userEntity.getName();
         this.description = userEntity.getDescription();
         this.avatar = userEntity.getAvatarLink();
@@ -38,9 +38,9 @@ public class GetUserInfoResponseDto {
         this.address = userEntity.getAddress();
         this.city = userEntity.getCity();
         this.country = userEntity.getCountry();
-        this.listing = listing;
-        this.isFriend = isFriend;
-        this.online = online;
-        this.coins = coins;
+        this.listing = listing.toString();
+        this.isFriend = isFriend.toString();
+        this.online = online.toString();
+        this.coins = coins.toString();
     }
 }

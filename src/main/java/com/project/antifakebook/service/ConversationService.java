@@ -40,7 +40,7 @@ public class ConversationService {
                 .findByFromUserId(currentUserId, requestDto.getIndex(), requestDto.getCount());
         for(ConversationEntity entity : conservationEntities) {
             GetConversationResponseDto conversationResponseDto = new GetConversationResponseDto();
-            conversationResponseDto.setId(entity.getId());
+            conversationResponseDto.setId(entity.getId().toString());
             UserEntity userEntity = userRepository.findById(entity.getToUserId()).orElse(null);
             assert userEntity != null;
             GetPartnerDto partnerDto = new GetPartnerDto(userEntity.getId(),userEntity.getName(), userEntity.getAvatarLink());
@@ -66,9 +66,9 @@ public class ConversationService {
             for(MessageEntity messageEntity :  messageEntities) {
                 GetSingleConversationResponseDto2 singleConversation = new GetSingleConversationResponseDto2();
                 singleConversation.setMessage(messageEntity.getContent());
-                singleConversation.setMessageId(messageEntity.getId());
-                singleConversation.setUnread(messageEntity.getIsRead());
-                singleConversation.setCreated(messageEntity.getCreatedDate());
+                singleConversation.setMessageId(messageEntity.getId().toString());
+                singleConversation.setUnread(messageEntity.getIsRead().toString());
+                singleConversation.setCreated(messageEntity.getCreatedDate().toString());
                 userRepository.findById(messageEntity.getFromUserId())
                         .ifPresent(userEntity -> singleConversation.setSender(new GetSenderDto(userEntity.getId(), userEntity.getName(), userEntity.getAvatarLink())));
                 conversation.add(singleConversation);
@@ -80,7 +80,7 @@ public class ConversationService {
             if(Boolean.TRUE.equals(isBlock)) {
                 isBlockStatus = 1;
             }
-            responseDto.setIsBlock(isBlockStatus);
+            responseDto.setIsBlock(String.valueOf(isBlockStatus));
 
         }
         return new ServerResponseDto(ResponseCase.OK,responseDto);

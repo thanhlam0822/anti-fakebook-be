@@ -4,15 +4,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
+
 
 @Getter
 @Setter
 @NoArgsConstructor
 public class GetSingleConversationResponseDto2 {
     private String message;
-    private Long messageId;
-    private Integer unread;
-    private Date created;
+    private String messageId;
+    private String unread;
+    private String created;
     private GetSenderDto sender;
 }

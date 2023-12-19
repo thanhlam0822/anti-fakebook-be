@@ -11,12 +11,12 @@ import java.util.Date;
 @NoArgsConstructor
 public class GetLastMessageDto {
     private String message;
-    private Date created;
-    private Integer unread;
+    private String created;
+    private String unread;
 
     public GetLastMessageDto(String message, Date created, Integer unread) {
         this.message = message;
-        this.created = created;
-        this.unread = unread;
+        this.created = created.toString();
+        this.unread = unread.toString();
     }
 }

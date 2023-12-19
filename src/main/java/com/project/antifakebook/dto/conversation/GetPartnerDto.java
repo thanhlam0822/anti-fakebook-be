@@ -8,12 +8,12 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class GetPartnerDto {
-    private Long id;
+    private String id;
     private String username;
     private String avatar;
 
     public GetPartnerDto(Long id, String username, String avatar) {
-        this.id = id;
+        this.id = id.toString();
         this.username = username;
         this.avatar = avatar;
     }

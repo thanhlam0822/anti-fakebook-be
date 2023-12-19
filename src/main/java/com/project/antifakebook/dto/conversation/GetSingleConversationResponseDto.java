@@ -12,6 +12,6 @@ import java.util.List;
 @NoArgsConstructor
 public class GetSingleConversationResponseDto {
     private List<GetSingleConversationResponseDto2> conversation;
-    private Integer isBlock;
+    private String isBlock;
 }
 

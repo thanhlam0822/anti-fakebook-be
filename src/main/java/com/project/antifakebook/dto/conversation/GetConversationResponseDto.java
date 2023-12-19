@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class GetConversationResponseDto {
-    private Long id;
+    private String id;
     private GetPartnerDto partner;
     private GetLastMessageDto lastMessage;
 }
