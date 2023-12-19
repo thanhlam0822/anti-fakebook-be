@@ -2,7 +2,9 @@ package com.project.antifakebook.service;
 
 import com.project.antifakebook.dto.ResponseCase;
 import com.project.antifakebook.dto.ServerResponseDto;
+import com.project.antifakebook.dto.verify_code.CheckVerifyCodeRequestDto;
 import com.project.antifakebook.dto.verify_code.CheckVerifyCodeResponseDto;
+import com.project.antifakebook.dto.verify_code.GetVerifyCodeRequestDto;
 import com.project.antifakebook.entity.UserEntity;
 import com.project.antifakebook.entity.VerificationTokenEntity;
 
@@ -40,7 +42,8 @@ public class VerifyTokenService {
         this.eventPublisher = eventPublisher;
     }
 
-    public ServerResponseDto getVerifyTokenService(String email, HttpServletRequest servletRequest) throws ParseException {
+    public ServerResponseDto getVerifyTokenService(GetVerifyCodeRequestDto requestDto, HttpServletRequest servletRequest) throws ParseException {
+        String email = requestDto.getEmail();
         UserEntity userEntity = userService.findByEmail(email);
         if (userEntity != null && userEntity.getActiveStatus().equals(ActiveStatusCode.ACTIVE.getCode())) {
             return new ServerResponseDto(ResponseCase.NOT_ACCESS);
@@ -79,11 +82,12 @@ public class VerifyTokenService {
         }
     }
 
-    public ServerResponseDto checkVerifyCode(String token, String email) throws ParseException {
+    public ServerResponseDto checkVerifyCode(CheckVerifyCodeRequestDto requestDto) throws ParseException {
+        String email = requestDto.getEmail();
+        String token = requestDto.getCodeVerify();
         VerificationTokenEntity tokenEntity = repository.getVerifyTokenByEmail(email);
         UserEntity userEntity = userRepository.findUserByTokenAndEmail(token, email);
         if (userEntity != null) {
-
             return activeUser(tokenEntity, userEntity);
         } else {
             return new ServerResponseDto(ResponseCase.USER_IS_NOT_VALIDATED);

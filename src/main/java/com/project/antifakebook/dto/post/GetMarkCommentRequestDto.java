@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class GetMarkCommentRequestDto {
-    private Long postId;
+    private Long id;
     private Integer index;
     private Integer count;
 }

@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -24,6 +23,7 @@ public class GetUserInfoResponseDto {
     private String isFriend;
     private String online;
     private String coins;
+
     public GetUserInfoResponseDto(UserEntity userEntity,
                                   Integer listing,
                                   Integer isFriend,
@@ -39,8 +39,16 @@ public class GetUserInfoResponseDto {
         this.city = userEntity.getCity();
         this.country = userEntity.getCountry();
         this.listing = listing.toString();
-        this.isFriend = isFriend.toString();
+        if (isFriend == null) {
+            this.isFriend = null;
+        } else {
+            this.isFriend = isFriend.toString();
+        }
         this.online = online.toString();
-        this.coins = coins.toString();
+        if (coins == null) {
+            this.coins = null;
+        } else {
+            this.coins = coins.toString();
+        }
     }
 }

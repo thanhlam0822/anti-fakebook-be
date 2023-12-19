@@ -8,6 +8,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class GetPostFeelRequestDto {
-    private Long postId;
-    private Integer typeReact;
+    private Long id;
+    private Integer type;
 }

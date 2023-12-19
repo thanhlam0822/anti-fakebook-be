@@ -257,8 +257,8 @@ public class PostService {
     public ServerResponseDto feel(Long userId,GetPostFeelRequestDto requestDto) {
         ReactEntity reactEntity = null;
         ServerResponseDto serverResponseDto;
-        Long postId = requestDto.getPostId();
-        Integer typeReact = requestDto.getTypeReact();
+        Long postId = requestDto.getId();
+        Integer typeReact = requestDto.getType();
         Optional<PostEntity> postEntity = postRepository.findById(postId);
         if(postEntity.isPresent()) {
             deleteFeelIfExist(postId,typeReact,userId);
@@ -293,7 +293,7 @@ public class PostService {
         GetMarkResponseDto responseDto ;
         List<GetMarkResponseDto> responseDtos = new ArrayList<>();
         List<GetRateResponseDto> rateEntities =
-                postRateRepository.findByPostId(requestDto.getPostId(),requestDto.getIndex(),requestDto.getCount());
+                postRateRepository.findByPostId(requestDto.getId(),requestDto.getIndex(),requestDto.getCount());
         for(GetRateResponseDto entity : rateEntities) {
             responseDto = new GetMarkResponseDto();
             responseDto.setId(entity.getId().toString());
@@ -305,7 +305,7 @@ public class PostService {
             MarkPosterResponseDto poster = new MarkPosterResponseDto(user.getId(),user.getName(),user.getAvatarLink());
             responseDto.setPoster(poster);
             List<GetMarkCommentResponseDto> markCommentResponseDtos = new ArrayList<>();
-            List<GetRateResponseDto> comments = postRateRepository.getByPostIdAndParentId(requestDto.getPostId(), entity.getId(),currentUserId);
+            List<GetRateResponseDto> comments = postRateRepository.getByPostIdAndParentId(requestDto.getId(), entity.getId(),currentUserId);
             for(GetRateResponseDto commentEntity: comments) {
                 GetMarkCommentResponseDto commentResponseDto = new GetMarkCommentResponseDto();
                 commentResponseDto.setContent(commentEntity.getMarkContent());
@@ -407,26 +407,8 @@ public class PostService {
         GetListPostsResponseDto responseDto = new GetListPostsResponseDto();
         List<GetSinglePostResponseDto> singlePostList = new ArrayList<>();
         boolean inCampaign = requestDto.getInCampaign() == 1;
-        List<Long> postIds;
-        if(isGetVideo) {
-            postIds = postRepository
-                    .getIdsOfVideos(inCampaign,
-                            requestDto.getCampaignId(),
-                            requestDto.getLatitude(),
-                            requestDto.getLongitude(),
-                            requestDto.getLastId(),
-                            requestDto.getIndex(),
-                            requestDto.getCount());
-        } else {
-            postIds = postRepository
-                    .getListIdsOfPost(inCampaign,
-                            requestDto.getCampaignId(),
-                            requestDto.getLatitude(),
-                            requestDto.getLongitude(),
-                            requestDto.getLastId(),
-                            requestDto.getIndex(),
-                            requestDto.getCount());
-        }
+        List<Long> postIds = getIdsOfPost(inCampaign,isGetVideo,requestDto);
+
         if(!postIds.isEmpty()) {
            List<PostEntity> postEntities = postRepository.findByIdIn(postIds);
            for(PostEntity postEntity : postEntities) {
@@ -453,5 +435,49 @@ public class PostService {
         responseDto.setLastId(requestDto.getLastId().toString());
         return new ServerResponseDto(ResponseCase.OK,responseDto);
     }
-
+    public List<Long> getIdsOfPost(boolean inCampaign,boolean isGetVideo,GetListPostsRequestDto requestDto) {
+        List<Long> postIds;
+        if(inCampaign) {
+            if(isGetVideo) {
+                postIds = postRepository
+                        .getIdsOfVideos(
+                                requestDto.getCampaignId(),
+                                requestDto.getLatitude(),
+                                requestDto.getLongitude(),
+                                requestDto.getLastId(),
+                                requestDto.getIndex(),
+                                requestDto.getCount());
+            } else {
+                postIds = postRepository
+                        .getListIdsOfPost(
+                                requestDto.getCampaignId(),
+                                requestDto.getLatitude(),
+                                requestDto.getLongitude(),
+                                requestDto.getLastId(),
+                                requestDto.getIndex(),
+                                requestDto.getCount());
+            }
+        } else {
+            if(isGetVideo) {
+                postIds = postRepository
+                        .getIdsOfVideosAll(
+                                requestDto.getCampaignId(),
+                                requestDto.getLatitude(),
+                                requestDto.getLongitude(),
+                                requestDto.getLastId(),
+                                requestDto.getIndex(),
+                                requestDto.getCount());
+            } else {
+                postIds = postRepository
+                        .getListIdsOfPostAll(
+                                requestDto.getCampaignId(),
+                                requestDto.getLatitude(),
+                                requestDto.getLongitude(),
+                                requestDto.getLastId(),
+                                requestDto.getIndex(),
+                                requestDto.getCount());
+            }
+        }
+        return postIds;
+    }
 }

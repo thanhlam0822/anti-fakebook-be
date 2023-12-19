@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class    GetListPostsRequestDto {
+public class GetListPostsRequestDto {
     private Long userId;
     private Integer inCampaign;
     private Long campaignId;

@@ -31,8 +31,8 @@ public interface PostRateRepository extends JpaRepository<RateEntity,Long> {
     @Query(value = "select r.content as markContent,r.created_date as createdDate,r.user_id as userId from rate r where "
            + " r.post_id = :postId "
            + " and r.parent_id = :parentId "
-           + " and r.user_id not in (select user_post_id from block_user where user_post_id= :currentUserId union "
-           + " select user_blocked_id from block_user where user_post_id = :currentUserId )",nativeQuery = true)
+           + " and r.user_id not in (select * from (select user_post_id from block_user where user_post_id= :currentUserId union\n"
+            +"               select user_blocked_id from block_user where user_post_id = :currentUserId) as user_id where user_post_id != :currentUserId) ",nativeQuery = true)
     List<GetRateResponseDto> getByPostIdAndParentId(@Param("postId") Long postId,
                                             @Param("parentId") Long parentId,
                                             @Param("currentUserId") Long currentUserId);

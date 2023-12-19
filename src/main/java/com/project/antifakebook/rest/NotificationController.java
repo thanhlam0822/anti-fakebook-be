@@ -5,7 +5,7 @@ import com.project.antifakebook.dto.ServerResponseDto;
 import com.project.antifakebook.dto.notifications.GetNotificationRequestDto;
 import com.project.antifakebook.service.NotificationService;
 
-import lombok.Getter;
+
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 

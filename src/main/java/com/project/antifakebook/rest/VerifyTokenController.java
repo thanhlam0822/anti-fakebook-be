@@ -2,6 +2,8 @@ package com.project.antifakebook.rest;
 
 import com.project.antifakebook.dto.ServerResponseDto;
 
+import com.project.antifakebook.dto.verify_code.CheckVerifyCodeRequestDto;
+import com.project.antifakebook.dto.verify_code.GetVerifyCodeRequestDto;
 import com.project.antifakebook.service.VerifyTokenService;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,12 +17,12 @@ public class VerifyTokenController {
     public VerifyTokenController(VerifyTokenService service) {
         this.service = service;
     }
-    @GetMapping("/get-verify-code")
-    public ServerResponseDto getVerifyCode(@RequestParam String email,HttpServletRequest servletRequest) throws ParseException {
-        return service.getVerifyTokenService(email, servletRequest);
+    @PostMapping ("/get-verify-code")
+    public ServerResponseDto getVerifyCode(@RequestBody GetVerifyCodeRequestDto requestDto, HttpServletRequest servletRequest) throws ParseException {
+        return service.getVerifyTokenService(requestDto, servletRequest);
     }
-    @GetMapping("/check-verify-code")
-    public ServerResponseDto confirmRegistration(@RequestParam String token, @RequestParam String email) throws ParseException {
-        return service.checkVerifyCode(token, email);
+    @PostMapping("/check-verify-code")
+    public ServerResponseDto confirmRegistration(@RequestBody CheckVerifyCodeRequestDto requestDto) throws ParseException {
+        return service.checkVerifyCode(requestDto);
     }
 }

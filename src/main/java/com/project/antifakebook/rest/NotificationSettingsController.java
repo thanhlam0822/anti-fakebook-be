@@ -15,7 +15,7 @@ public class NotificationSettingsController {
     public NotificationSettingsController(NotificationSettingsService notificationSettingsService) {
         this.notificationSettingsService = notificationSettingsService;
     }
-    @GetMapping("/get-push-settings")
+    @PostMapping("/get-push-settings")
     public ServerResponseDto getPushSettings(@AuthenticationPrincipal CustomUserDetails currentUser) {
         return notificationSettingsService.getPushSettings(currentUser.getUserId());
     }
